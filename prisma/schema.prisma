@@ -43,8 +43,14 @@ model ArtistDNA {
   version   Int      @default(1)
 
   // Relations
-  milestones Milestone[]
-  contents   Content[]
+  milestones        Milestone[]
+  contents          Content[]
+  distributions     Distribution[]
+  socialConnections SocialConnection[]
+  socialPosts       SocialPost[]
+  rights            Right[]
+  infringements     Infringement[]
+  monitoringRules   MonitoringRule[]
 
   @@index([name])
 }
@@ -87,10 +93,21 @@ model Content {
   version   Int      @default(1)
 
   // Relations
+<<<<<<< HEAD
   artist        ArtistDNA      @relation(fields: [artistId], references: [id], onDelete: Cascade)
   tags          Tag[]
   mediaFiles    MediaFile[]
   collaborators Collaborator[]
+=======
+  artist         ArtistDNA      @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  tags           Tag[]
+  mediaFiles     MediaFile[]
+  collaborators  Collaborator[]
+  distributions  Distribution[]
+  socialPosts    SocialPost[]
+  rights         Right[]
+  infringements  Infringement[]
+>>>>>>> 8eacea9 (feat: Phase 3 foundation - Type definitions and database schema)
 
   @@index([artistId])
   @@index([type])
@@ -138,3 +155,219 @@ model Collaborator {
 
   @@index([contentId])
 }
+<<<<<<< HEAD
+=======
+
+// ============================================================================
+// Neural Publisher (Distribution Management)
+// ============================================================================
+
+model Distribution {
+  id          String   @id @default(uuid())
+  contentId   String
+  artistId    String
+  title       String
+  status      String   // DistributionStatus enum
+  scheduledDate DateTime?
+  publishedDate DateTime?
+  description   String?
+  tags          String   // JSON array
+  isExplicit    Boolean  @default(false)
+
+  // Metadata
+  platforms String   // JSON array of PlatformConfig
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  version   Int      @default(1)
+
+  // Relations
+  artist ArtistDNA @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  events DistributionEvent[]
+
+  @@index([artistId])
+  @@index([contentId])
+  @@index([status])
+}
+
+model DistributionEvent {
+  id             String   @id @default(uuid())
+  distributionId String
+  platform       String?
+  eventType      String   // DistributionEventType enum
+  status         String   // DistributionStatus enum
+  message        String?
+  metadata       String?  // JSON object
+  timestamp      DateTime @default(now())
+
+  // Relations
+  distribution Distribution @relation(fields: [distributionId], references: [id], onDelete: Cascade)
+
+  @@index([distributionId])
+  @@index([timestamp])
+}
+
+// ============================================================================
+// Neural Connector (Social Media Integration)
+// ============================================================================
+
+model SocialConnection {
+  id             String   @id @default(uuid())
+  artistId       String
+  platform       String   // SocialPlatform enum
+  accountId      String
+  accountName    String
+  isActive       Boolean  @default(true)
+
+  // Authentication (encrypted in production)
+  accessToken    String?
+  refreshToken   String?
+  tokenExpiresAt DateTime?
+
+  // Stats
+  followerCount  Int?
+  lastSyncedAt   DateTime?
+
+  // Timestamps
+  connectedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  artist ArtistDNA @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([artistId])
+  @@index([platform])
+}
+
+model SocialPost {
+  id          String   @id @default(uuid())
+  artistId    String
+  contentId   String?
+  type        String   // PostType enum
+  content     String
+  mediaUrls   String   // JSON array
+  platforms   String   // JSON array of SocialPlatform
+  status      String   // PostStatus enum
+  scheduledAt DateTime?
+  postedAt    DateTime?
+
+  // Platform Posts & Engagement
+  platformPosts String   // JSON array of PlatformPost
+  engagementStats String // JSON EngagementStats
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  version   Int      @default(1)
+
+  // Relations
+  artist  ArtistDNA @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  relatedContent Content? @relation(fields: [contentId], references: [id], onDelete: SetNull)
+
+  @@index([artistId])
+  @@index([contentId])
+  @@index([status])
+}
+
+// ============================================================================
+// Neural Sentinel (Rights Protection)
+// ============================================================================
+
+model Right {
+  id                 String   @id @default(uuid())
+  contentId          String
+  artistId           String
+  rightType          String   // RightType enum
+  rightHolder        String
+  rightHolderContact String?
+  licenseType        String   // LicenseType enum
+  licenseTerms       String?
+  startDate          DateTime
+  endDate            DateTime?
+  territories        String   // JSON array of ISO country codes
+
+  // Registration
+  registrationNumber String?
+  isrcCode           String?
+  iswcCode           String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  version   Int      @default(1)
+
+  // Relations
+  artist       ArtistDNA     @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  content      Content       @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  infringements Infringement[]
+
+  @@index([artistId])
+  @@index([contentId])
+  @@index([rightType])
+}
+
+model Infringement {
+  id               String   @id @default(uuid())
+  rightId          String
+  contentId        String
+  artistId         String
+  status           String   // InfringementStatus enum
+  detectedUrl      String
+  detectedPlatform String
+  description      String
+  detectedAt       DateTime @default(now())
+  detectionMethod  String   // 'manual' | 'automated' | 'user_report'
+  confidence       Int      // 0-100
+
+  // Action
+  recommendedAction String   // ActionType enum
+  actionTaken       String?  // ActionType enum
+  actionDate        DateTime?
+  actionNotes       String?
+
+  // Resolution
+  resolvedAt DateTime?
+  resolution String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  version   Int      @default(1)
+
+  // Relations
+  artist  ArtistDNA @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  content Content   @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  right   Right     @relation(fields: [rightId], references: [id], onDelete: Cascade)
+
+  @@index([artistId])
+  @@index([contentId])
+  @@index([rightId])
+  @@index([status])
+}
+
+model MonitoringRule {
+  id              String   @id @default(uuid())
+  artistId        String
+  name            String
+  isActive        Boolean  @default(true)
+  contentIds      String   // JSON array
+  platforms       String   // JSON array
+  keywords        String   // JSON array
+  autoAction      String?  // ActionType enum
+  notifyEmail     String?
+  lastRunAt       DateTime?
+  totalDetections Int      @default(0)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  artist ArtistDNA @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([artistId])
+  @@index([isActive])
+}
+>>>>>>> 8eacea9 (feat: Phase 3 foundation - Type definitions and database schema)
