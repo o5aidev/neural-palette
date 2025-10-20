@@ -1,0 +1,140 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// Neural Identity (Artist DNA)
+// ============================================================================
+
+model ArtistDNA {
+  id        String   @id @default(uuid())
+  name      String
+  bio       String
+
+  // Creative Style (JSON)
+  visualThemes   String // JSON array
+  musicGenres    String // JSON array
+  writingStyle   String
+  colorPalette   String // JSON array
+
+  // Communication Style
+  tone               String // CommunicationTone enum
+  emojiUsage         String // EmojiUsage enum
+  responseLength     String // ResponseLength enum
+  languagePreferences String // JSON array
+
+  // Values
+  coreValues                  String // JSON array
+  artisticVision              String
+  fanRelationshipPhilosophy   String
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  version   Int      @default(1)
+
+  // Relations
+  milestones Milestone[]
+  contents   Content[]
+
+  @@index([name])
+}
+
+model Milestone {
+  id           String   @id @default(uuid())
+  artistId     String
+  date         DateTime
+  title        String
+  description  String
+  type         String   // MilestoneType enum
+  significance Int      // 1-10
+
+  // Relations
+  artist ArtistDNA @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([artistId])
+  @@index([date])
+}
+
+// ============================================================================
+// Neural Palette (Content Management)
+// ============================================================================
+
+model Content {
+  id          String   @id @default(uuid())
+  artistId    String
+  title       String
+  description String
+  type        String   // ContentType enum
+  status      String   // ContentStatus enum
+  publishedAt DateTime?
+
+  // Metadata (JSON)
+  metadata String // ContentMetadata JSON
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  version   Int      @default(1)
+
+  // Relations
+  artist        ArtistDNA      @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  tags          Tag[]
+  mediaFiles    MediaFile[]
+  collaborators Collaborator[]
+
+  @@index([artistId])
+  @@index([type])
+  @@index([status])
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  contentId String
+  name      String
+  category  String?
+
+  // Relations
+  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@index([contentId])
+  @@index([name])
+}
+
+model MediaFile {
+  id           String   @id @default(uuid())
+  contentId    String
+  filename     String
+  mimeType     String
+  size         Int
+  url          String
+  thumbnailUrl String?
+  uploadedAt   DateTime @default(now())
+
+  // Relations
+  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@index([contentId])
+}
+
+model Collaborator {
+  id        String  @id @default(uuid())
+  contentId String
+  name      String
+  role      String
+  email     String?
+
+  // Relations
+  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@index([contentId])
+}
