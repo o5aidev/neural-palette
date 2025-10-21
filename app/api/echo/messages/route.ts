@@ -26,21 +26,23 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Build query
-    const where: {
-      artistId: string
-      sentiment?: string
-    } = {
-      artistId: artist.id
-    }
+    // Get conversation threads for this artist
+    const threads = await prisma.conversationThread.findMany({
+      where: {
+        artistId: artist.id,
+        ...(sentiment && { sentiment })
+      },
+      orderBy: { lastMessageAt: 'desc' },
+      take: limit
+    })
 
-    if (sentiment) {
-      where.sentiment = sentiment
-    }
-
+    // Get messages from these threads
     const messages = await prisma.message.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
+      where: {
+        threadId: { in: threads.map(t => t.id) },
+        role: 'fan'
+      },
+      orderBy: { timestamp: 'desc' },
       take: limit
     })
 
@@ -48,16 +50,12 @@ export async function GET(request: NextRequest) {
       success: true,
       data: messages.map(m => ({
         id: m.id,
-        artistId: m.artistId,
         content: m.content,
-        platform: m.platform,
         sentiment: m.sentiment,
         confidence: m.confidence,
-        aiResponse: m.aiResponse,
-        responseGeneratedAt: m.responseGeneratedAt,
         metadata: m.metadata ? JSON.parse(m.metadata) : {},
-        createdAt: m.createdAt,
-        updatedAt: m.updatedAt
+        createdAt: m.timestamp,
+        updatedAt: m.timestamp
       }))
     })
   } catch (error) {
@@ -104,15 +102,30 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Create or get conversation thread
+    const thread = await prisma.conversationThread.create({
+      data: {
+        artistId: artist.id,
+        fanId: 'anonymous', // For web submissions
+        channel: body.platform || 'web',
+        status: 'pending',
+        priority: 'normal',
+        sentiment: sentimentResult.sentiment,
+        topics: '[]',
+        requiresHumanReview: false,
+        lastMessageAt: new Date()
+      }
+    })
+
     // Create fan message
     const message = await prisma.message.create({
       data: {
-        artistId: artist.id,
+        threadId: thread.id,
+        role: 'fan',
         content: body.content,
-        platform: body.platform || 'web',
         sentiment: sentimentResult.sentiment,
         confidence: sentimentResult.confidence,
-        metadata: body.metadata ? JSON.stringify(body.metadata) : '{}'
+        metadata: body.metadata ? JSON.stringify(body.metadata) : null
       }
     })
 
@@ -120,14 +133,12 @@ export async function POST(request: NextRequest) {
       success: true,
       data: {
         id: message.id,
-        artistId: message.artistId,
         content: message.content,
-        platform: message.platform,
         sentiment: message.sentiment,
         confidence: message.confidence,
         metadata: message.metadata ? JSON.parse(message.metadata) : {},
-        createdAt: message.createdAt,
-        updatedAt: message.updatedAt
+        createdAt: message.timestamp,
+        updatedAt: message.timestamp
       }
     }, { status: 201 })
   } catch (error) {
