@@ -1,15 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Textarea from '@/components/ui/Textarea'
 import Select from '@/components/ui/Select'
-import Badge from '@/components/ui/Badge'
+import { CardSkeleton } from '@/components/ui/Skeleton'
 import { useForm } from '@/lib/hooks/useForm'
 import { useToast } from '@/lib/hooks/useToast'
+import { useApi, useMutation } from '@/lib/hooks/useApi'
 import ToastContainer from '@/components/ui/ToastContainer'
+import { apiClient } from '@/lib/api/client'
+import { ArtistIdentity, CreateIdentityInput } from '@/lib/api/types'
 
 interface IdentityFormData {
   artistName: string
@@ -20,9 +23,25 @@ interface IdentityFormData {
 
 export default function IdentityPage() {
   const { toasts, removeToast, success, error: showError } = useToast()
-  const [selectedTags, setSelectedTags] = useState<string[]>(['メロディック', 'リズミカル'])
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
 
-  const { values, errors, isSubmitting, handleChange, handleBlur, handleSubmit } = useForm<IdentityFormData>(
+  // Fetch existing identity
+  const { data: identity, isLoading: isFetching, error: fetchError, refetch } = useApi<{ data: ArtistIdentity }>('/identity', {
+    autoFetch: true
+  })
+
+  // Create/Update mutation
+  const { mutate: saveIdentity, isLoading: isSaving } = useMutation<{ data: ArtistIdentity }, CreateIdentityInput>(
+    async (data) => {
+      if (identity?.data) {
+        return await apiClient.put('/identity', data)
+      } else {
+        return await apiClient.post('/identity', data)
+      }
+    }
+  )
+
+  const { values, errors, isSubmitting, handleChange, handleBlur, handleSubmit, setValues } = useForm<IdentityFormData>(
     {
       artistName: '',
       genre: '',
@@ -44,6 +63,19 @@ export default function IdentityPage() {
     }
   )
 
+  // Load existing data into form
+  useEffect(() => {
+    if (identity?.data) {
+      setValues({
+        artistName: identity.data.artistName || '',
+        genre: identity.data.genre || '',
+        biography: identity.data.biography || '',
+        influences: identity.data.influences?.join(', ') || ''
+      })
+      setSelectedTags(identity.data.musicalFeatures || [])
+    }
+  }, [identity, setValues])
+
   const availableTags = ['メロディック', 'リズミカル', 'ハーモニック', 'エクスペリメンタル', 'アンビエント', 'アグレッシブ']
 
   const toggleTag = (tag: string) => {
@@ -56,13 +88,59 @@ export default function IdentityPage() {
 
   const onSubmit = async (data: IdentityFormData) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const influences = data.influences
+        ? data.influences.split(',').map(s => s.trim()).filter(Boolean)
+        : []
+
+      const payload: CreateIdentityInput = {
+        artistName: data.artistName,
+        genre: data.genre,
+        biography: data.biography,
+        influences,
+        musicalFeatures: selectedTags
+      }
+
+      await saveIdentity(payload)
+      await refetch()
       success('プロフィールを保存しました')
-      console.log('Saving identity:', { ...data, tags: selectedTags })
     } catch (err) {
-      showError('保存に失敗しました')
+      showError(err instanceof Error ? err.message : '保存に失敗しました')
     }
+  }
+
+  if (isFetching) {
+    return (
+      <DashboardLayout
+        title="Neural Identity"
+        description="アーティストのDNAを定義し、独自の個性を保存・管理します"
+      >
+        <div className="grid gap-6">
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+      </DashboardLayout>
+    )
+  }
+
+  if (fetchError && fetchError.message !== 'Identity not found') {
+    return (
+      <DashboardLayout
+        title="Neural Identity"
+        description="アーティストのDNAを定義し、独自の個性を保存・管理します"
+      >
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-2">
+            エラーが発生しました
+          </h3>
+          <p className="text-red-700 dark:text-red-300 mb-4">
+            {fetchError.message}
+          </p>
+          <Button variant="danger" onClick={() => refetch()}>
+            再試行
+          </Button>
+        </div>
+      </DashboardLayout>
+    )
   }
 
   return (
@@ -71,6 +149,14 @@ export default function IdentityPage() {
       description="アーティストのDNAを定義し、独自の個性を保存・管理します"
     >
       <ToastContainer toasts={toasts} onClose={removeToast} />
+
+      {identity?.data && (
+        <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <p className="text-sm text-blue-800 dark:text-blue-200">
+            最終更新: {new Date(identity.data.updatedAt).toLocaleString('ja-JP')}
+          </p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6">
         {/* Artist DNA Profile Card */}
@@ -159,16 +245,16 @@ export default function IdentityPage() {
           <Button
             type="button"
             variant="ghost"
-            onClick={() => window.history.back()}
+            onClick={() => window.location.href = '/'}
           >
             キャンセル
           </Button>
           <Button
             type="submit"
             variant="primary"
-            isLoading={isSubmitting}
+            isLoading={isSaving}
           >
-            保存する
+            {identity?.data ? '更新する' : '作成する'}
           </Button>
         </div>
       </form>
