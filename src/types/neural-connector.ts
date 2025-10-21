@@ -39,6 +39,14 @@ export type PostType =
   | 'story';
 
 /**
+ * 接続ステータス
+ */
+export type ConnectionStatus =
+  | 'active'       // アクティブ
+  | 'inactive'     // 非アクティブ
+  | 'error';       // エラー
+
+/**
  * SNSアカウント連携
  */
 export interface SocialConnection {

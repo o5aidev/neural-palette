@@ -14,6 +14,7 @@ import type {
   PlatformConfig,
   DistributionStats,
   DistributionStatus,
+  DistributionPlatform,
 } from '../types/neural-publisher.js';
 
 export class NeuralPublisherStoragePrisma {
@@ -155,7 +156,8 @@ export class NeuralPublisherStoragePrisma {
 
     return {
       id: data.id,
-      platform: data.platform ?? undefined,
+      distributionId: data.distributionId,
+      platform: (data.platform as DistributionPlatform) ?? undefined,
       eventType: data.eventType as any,
       status: data.status as DistributionStatus,
       message: data.message ?? undefined,
@@ -186,13 +188,16 @@ export class NeuralPublisherStoragePrisma {
     const scheduled = distributions.filter(d => d.status === 'scheduled').length;
     const failed = distributions.filter(d => d.status === 'failed').length;
 
+    // Count by platform (simplified - would need proper platform tracking)
+    const byPlatform: Record<DistributionPlatform, number> = {} as any;
+
     return {
       totalDistributions: total,
       publishedCount: published,
       scheduledCount: scheduled,
       failedCount: failed,
       byStatus,
-      recentDistributions: [], // Simplified for now
+      byPlatform,
     };
   }
 

@@ -42,7 +42,6 @@ export class NeuralConnectorStoragePrisma {
         accessToken: input.accessToken,
         refreshToken: input.refreshToken,
         tokenExpiresAt: input.tokenExpiresAt,
-        followerCount: input.followerCount,
       },
     });
 
@@ -113,7 +112,10 @@ export class NeuralConnectorStoragePrisma {
 
     if (filter?.artistId) where.artistId = filter.artistId;
     if (filter?.platform) where.platform = filter.platform;
-    if (filter?.isActive !== undefined) where.isActive = filter.isActive;
+    if (filter?.status) {
+      // Map ConnectionStatus to isActive boolean
+      where.isActive = filter.status === 'active';
+    }
 
     const results = await this.prisma.socialConnection.findMany({
       where,
@@ -195,11 +197,6 @@ export class NeuralConnectorStoragePrisma {
       updateData.platforms = JSON.stringify(input.platforms);
     if (input.status !== undefined) updateData.status = input.status;
     if (input.scheduledAt !== undefined) updateData.scheduledAt = input.scheduledAt;
-    if (input.postedAt !== undefined) updateData.postedAt = input.postedAt;
-    if (input.platformPosts !== undefined)
-      updateData.platformPosts = JSON.stringify(input.platformPosts);
-    if (input.engagementStats !== undefined)
-      updateData.engagementStats = JSON.stringify(input.engagementStats);
 
     const updated = await this.prisma.socialPost.update({
       where: { id },
