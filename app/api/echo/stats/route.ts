@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
 
     const bySentiment: Record<string, number> = {}
     sentimentGroups.forEach(group => {
-      bySentiment[group.sentiment] = group._count
+      bySentiment[group.sentiment] = group._count._all || 0
     })
 
     // Calculate average confidence

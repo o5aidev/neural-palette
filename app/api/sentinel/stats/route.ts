@@ -36,8 +36,15 @@ export async function GET(request: NextRequest) {
       where: { artistId: targetArtistId }
     })
 
+    // Active rights: those without endDate or with future endDate
     const activeRights = await prisma.right.count({
-      where: { artistId: targetArtistId, status: 'active' }
+      where: {
+        artistId: targetArtistId,
+        OR: [
+          { endDate: null },
+          { endDate: { gte: new Date() } }
+        ]
+      }
     })
 
     // Get infringement stats
@@ -59,14 +66,14 @@ export async function GET(request: NextRequest) {
 
     // Get right type distribution
     const rightTypes = await prisma.right.groupBy({
-      by: ['type'],
+      by: ['rightType'],
       where: { artistId: targetArtistId },
       _count: true
     })
 
     const byRightType: Record<string, number> = {}
     rightTypes.forEach(rt => {
-      byRightType[rt.type] = rt._count
+      byRightType[rt.rightType] = rt._count._all || 0
     })
 
     // Get severity distribution
@@ -78,7 +85,7 @@ export async function GET(request: NextRequest) {
 
     const bySeverity: Record<string, number> = {}
     severityGroups.forEach(sg => {
-      bySeverity[sg.severity] = sg._count
+      bySeverity[sg.severity] = sg._count._all || 0
     })
 
     // Get recent infringements
@@ -89,8 +96,7 @@ export async function GET(request: NextRequest) {
       include: {
         right: {
           select: {
-            title: true,
-            type: true
+            rightType: true
           }
         }
       }
@@ -109,7 +115,7 @@ export async function GET(request: NextRequest) {
         bySeverity,
         recentInfringements: recentInfringements.map(i => ({
           id: i.id,
-          rightTitle: i.right.title,
+          rightType: i.right.rightType,
           url: i.url,
           platform: i.platform,
           severity: i.severity,
