@@ -13,6 +13,9 @@
     "test:run": "vitest run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "db:generate": "prisma generate",
@@ -26,6 +29,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@tailwindcss/postcss": "^4.1.15",
     "@types/node": "^20.10.0",
     "@types/react": "^19.2.2",
@@ -46,6 +50,7 @@
   "dependencies": {
     "@prisma/client": "^6.17.1",
     "next": "^14.2.33",
+    "next-auth": "^5.0.0-beta.29",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   }

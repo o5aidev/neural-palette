@@ -1,8 +1,6 @@
 'use client'
 
-import { useState } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import Button from '@/components/ui/Button'
 import { useApi } from '@/lib/hooks/useApi'
 import { useToast } from '@/lib/hooks/useToast'
 import ToastContainer from '@/components/ui/ToastContainer'
@@ -29,10 +27,9 @@ interface PublisherStats {
 
 export default function PublisherPage() {
   const { toasts, removeToast } = useToast()
-  const [showNewModal, setShowNewModal] = useState(false)
 
   // Fetch distributions
-  const { data: distributionsData, isLoading: distributionsLoading, refetch: refetchDistributions } = useApi<{ data: Distribution[] }>(
+  const { data: distributionsData, isLoading: distributionsLoading } = useApi<{ data: Distribution[] }>(
     '/publisher/distributions?limit=20',
     { autoFetch: true }
   )
@@ -106,12 +103,7 @@ export default function PublisherPage() {
 
         {/* Distributions List */}
         <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">配信スケジュール</h2>
-            <Button onClick={() => setShowNewModal(true)}>
-              新規配信作成
-            </Button>
-          </div>
+          <h2 className="text-xl font-semibold mb-4">配信スケジュール</h2>
 
           {distributionsLoading ? (
             <div className="text-center py-8 text-gray-500">読み込み中...</div>
@@ -149,8 +141,6 @@ export default function PublisherPage() {
           )}
         </div>
       </div>
-
-      {/* Note: Create modal would require content selection - simplified for now */}
     </DashboardLayout>
   )
 }
