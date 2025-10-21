@@ -27,51 +27,73 @@ export async function GET(request: NextRequest) {
       targetArtistId = artist.id
     }
 
-    // Get total messages
-    const totalMessages = await prisma.fanMessage.count({
-      where: { artistId: targetArtistId }
-    })
-
-    // Get messages with response
-    const withResponse = await prisma.fanMessage.count({
+    // Get total messages (count all messages in conversations)
+    const totalMessages = await prisma.message.count({
       where: {
-        artistId: targetArtistId,
-        aiResponse: { not: null }
+        thread: {
+          artistId: targetArtistId
+        }
       }
     })
 
-    // Get sentiment distribution
-    const sentimentGroups = await prisma.fanMessage.groupBy({
+    // Get messages with AI response (count messages with role 'ai')
+    const withResponse = await prisma.message.count({
+      where: {
+        thread: {
+          artistId: targetArtistId
+        },
+        role: 'ai'
+      }
+    })
+
+    // Get sentiment distribution (only for messages with sentiment)
+    const sentimentGroups = await prisma.message.groupBy({
       by: ['sentiment'],
-      where: { artistId: targetArtistId },
+      where: {
+        thread: {
+          artistId: targetArtistId
+        },
+        sentiment: { not: null }
+      },
       _count: true
     })
 
     const bySentiment: Record<string, number> = {}
     sentimentGroups.forEach(group => {
-      bySentiment[group.sentiment] = group._count._all || 0
+      if (group.sentiment) {
+        bySentiment[group.sentiment] = group._count._all || 0
+      }
     })
 
-    // Calculate average confidence
-    const messages = await prisma.fanMessage.findMany({
-      where: { artistId: targetArtistId },
+    // Calculate average confidence (only for messages with confidence)
+    const messages = await prisma.message.findMany({
+      where: {
+        thread: {
+          artistId: targetArtistId
+        },
+        confidence: { not: null }
+      },
       select: { confidence: true }
     })
 
     const averageConfidence = messages.length > 0
-      ? messages.reduce((sum, m) => sum + m.confidence, 0) / messages.length
+      ? messages.reduce((sum, m) => sum + (m.confidence || 0), 0) / messages.length
       : 0
 
     // Get recent messages
-    const recentMessages = await prisma.fanMessage.findMany({
-      where: { artistId: targetArtistId },
-      orderBy: { createdAt: 'desc' },
+    const recentMessages = await prisma.message.findMany({
+      where: {
+        thread: {
+          artistId: targetArtistId
+        }
+      },
+      orderBy: { timestamp: 'desc' },
       take: 5,
       select: {
         id: true,
         content: true,
         sentiment: true,
-        createdAt: true
+        timestamp: true
       }
     })
 

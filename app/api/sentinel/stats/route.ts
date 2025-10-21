@@ -76,16 +76,16 @@ export async function GET(request: NextRequest) {
       byRightType[rt.rightType] = rt._count._all || 0
     })
 
-    // Get severity distribution
-    const severityGroups = await prisma.infringement.groupBy({
-      by: ['severity'],
+    // Get status distribution (Infringement model uses 'status', not 'severity')
+    const statusGroups = await prisma.infringement.groupBy({
+      by: ['status'],
       where: { artistId: targetArtistId },
       _count: true
     })
 
-    const bySeverity: Record<string, number> = {}
-    severityGroups.forEach(sg => {
-      bySeverity[sg.severity] = sg._count._all || 0
+    const byStatus: Record<string, number> = {}
+    statusGroups.forEach(sg => {
+      byStatus[sg.status] = sg._count._all || 0
     })
 
     // Get recent infringements
@@ -112,13 +112,12 @@ export async function GET(request: NextRequest) {
         resolvedCount,
         inProgressCount,
         byRightType,
-        bySeverity,
+        byStatus,
         recentInfringements: recentInfringements.map(i => ({
           id: i.id,
           rightType: i.right.rightType,
-          url: i.url,
-          platform: i.platform,
-          severity: i.severity,
+          url: i.detectedUrl,
+          platform: i.detectedPlatform,
           status: i.status,
           detectedAt: i.detectedAt
         }))
