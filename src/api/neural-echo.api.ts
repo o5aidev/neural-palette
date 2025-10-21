@@ -30,9 +30,14 @@ import {
   validateResponseConfig,
 } from '../validation/neural-echo.validator.js';
 import type { ApiResponse } from './neural-identity.api.js';
+import { personalizedAI } from '../services/personalized-ai.service.js';
+import { aiCache } from '../services/ai-cache.service.js';
+import { NeuralIdentityStoragePrisma } from '../storage/neural-identity.storage.prisma.js';
+import type { AIMessage } from '../services/ai-service.js';
 
 const prisma = new PrismaClient();
 const storage = new NeuralEchoStoragePrisma(prisma);
+const identityStorage = new NeuralIdentityStoragePrisma(prisma);
 
 // ============================================================================
 // Fan Profile API
@@ -293,10 +298,7 @@ export async function updateMessage(
 // ============================================================================
 
 /**
- * AI応答を生成
- *
- * Note: 実際のAI生成は別途実装が必要（OpenAI API + Artist DNA等）
- * ここではメッセージの保存のみを行う
+ * AI応答を生成（実際のAI統合）
  */
 export async function generateResponse(
   request: GenerateResponseRequest
@@ -304,34 +306,98 @@ export async function generateResponse(
   try {
     validateGenerateResponseRequest(request);
 
-    // 応答設定を取得
+    // Get conversation thread
     const thread = await storage.getConversationThread(request.threadId);
     if (!thread) {
       throw new Error('Conversation thread not found');
     }
 
-    // TODO: 実際のAI応答生成処理をここに実装
-    // Artist DNAを使用してパーソナライズされた応答を生成
-    const mockResponse = `Thank you for your message! I appreciate your support. [AI Generated Response to: "${request.fanMessage}"]`;
+    // Get artist DNA
+    const artistDNA = await identityStorage.getArtistDNA(thread.artistId);
+    if (!artistDNA) {
+      throw new Error('Artist DNA not found');
+    }
 
-    // AI応答をメッセージとして追加
+    // Analyze fan message sentiment first
+    const sentimentResult = await personalizedAI.analyzeSentiment(request.fanMessage);
+
+    // Get conversation history
+    const messages = await storage.getThreadMessages(request.threadId);
+    const conversationHistory: AIMessage[] = messages
+      .slice(-5) // Last 5 messages for context
+      .map(m => ({
+        role: m.role === 'fan' ? 'user' as const : 'assistant' as const,
+        content: m.content,
+      }));
+
+    // Check cache first
+    const cacheKey = aiCache.getCompletion({
+      artistId: thread.artistId,
+      fanMessage: request.fanMessage,
+      sentiment: sentimentResult.sentiment,
+      historyLength: conversationHistory.length,
+    });
+
+    let aiResponse;
+    if (cacheKey) {
+      aiResponse = cacheKey;
+      console.log('[Neural Echo] Using cached AI response');
+    } else {
+      // Generate personalized fan response
+      aiResponse = await personalizedAI.generateFanResponse(
+        artistDNA,
+        request.fanMessage,
+        conversationHistory,
+        sentimentResult.sentiment
+      );
+
+      // Cache the response (shorter TTL for conversations)
+      aiCache.cacheCompletion(
+        {
+          artistId: thread.artistId,
+          fanMessage: request.fanMessage,
+          sentiment: sentimentResult.sentiment,
+          historyLength: conversationHistory.length,
+        },
+        aiResponse,
+        1800 // 30 minutes TTL
+      );
+    }
+
+    // Save AI response as message
     const message = await storage.addMessage({
       threadId: request.threadId,
       role: 'ai',
-      content: mockResponse,
-      sentiment: 'positive',
+      content: aiResponse.content,
+      sentiment: sentimentResult.sentiment,
+      confidence: aiResponse.confidence,
       metadata: {
         generatedPrompt: request.fanMessage,
-        model: 'mock-model',
-        tokensUsed: 50,
-        confidence: 85,
+        model: aiResponse.model,
+        tokensUsed: aiResponse.tokensUsed,
+        provider: aiResponse.provider,
+        sentimentConfidence: sentimentResult.confidence,
       },
     });
 
-    // スレッドのステータスを更新
+    // Update thread status and sentiment
     await storage.updateConversationThread(request.threadId, {
-      status: 'generated',
+      status: request.autoSend ? 'sent' : 'generated',
+      sentiment: sentimentResult.sentiment,
     });
+
+    // Update fan profile sentiment history
+    const fan = await storage.getFanProfile(thread.fanId);
+    if (fan) {
+      const sentimentHistory = JSON.parse(fan.sentimentHistory);
+      sentimentHistory.push(sentimentResult.sentiment);
+
+      await storage.updateFanProfile(thread.fanId, {
+        lastInteractionAt: new Date(),
+        totalInteractions: fan.totalInteractions + 1,
+        sentimentHistory: JSON.stringify(sentimentHistory.slice(-10)), // Keep last 10
+      });
+    }
 
     return {
       success: true,

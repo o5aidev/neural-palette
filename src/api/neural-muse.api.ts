@@ -28,9 +28,13 @@ import {
   validateCreatePromptTemplateInput,
 } from '../validation/neural-muse.validator.js';
 import type { ApiResponse } from './neural-identity.api.js';
+import { personalizedAI } from '../services/personalized-ai.service.js';
+import { aiCache } from '../services/ai-cache.service.js';
+import { NeuralIdentityStoragePrisma } from '../storage/neural-identity.storage.prisma.js';
 
 const prisma = new PrismaClient();
 const storage = new NeuralMuseStoragePrisma(prisma);
+const identityStorage = new NeuralIdentityStoragePrisma(prisma);
 
 // ============================================================================
 // Creative Session API
@@ -159,10 +163,7 @@ export async function findCreativeSessions(
 // ============================================================================
 
 /**
- * AI生成を実行
- *
- * Note: 実際のAI生成は別途実装が必要（OpenAI API等）
- * ここでは結果の保存のみを行う
+ * AI生成を実行（実際のAI統合）
  */
 export async function generateContent(
   request: GenerateRequest
@@ -170,21 +171,67 @@ export async function generateContent(
   try {
     validateGenerateRequest(request);
 
-    // TODO: 実際のAI生成処理をここに実装
-    // 現在はモック実装
-    const mockResult = {
+    // Get session to extract artistId
+    const session = await storage.getCreativeSession(request.sessionId);
+    if (!session) {
+      throw new Error('Creative session not found');
+    }
+
+    // Get artist DNA
+    const artistDNA = await identityStorage.getArtistDNA(session.artistId);
+    if (!artistDNA) {
+      throw new Error('Artist DNA not found');
+    }
+
+    // Check cache first
+    const cacheKey = aiCache.getCompletion({
+      artistId: session.artistId,
+      prompt: request.prompt,
+      type: request.type,
+      params: request.params,
+    });
+
+    let aiResponse;
+    if (cacheKey) {
+      aiResponse = cacheKey;
+      console.log('[Neural Muse] Using cached AI response');
+    } else {
+      // Generate with personalized AI
+      aiResponse = await personalizedAI.generateCreative({
+        artistDNA,
+        prompt: request.prompt,
+        type: request.type,
+        params: request.params,
+        context: request.context,
+      });
+
+      // Cache the response
+      aiCache.cacheCompletion(
+        {
+          artistId: session.artistId,
+          prompt: request.prompt,
+          type: request.type,
+          params: request.params,
+        },
+        aiResponse,
+        3600 // 1 hour TTL
+      );
+    }
+
+    // Save generation result
+    const generationData = {
       sessionId: request.sessionId,
       type: request.type,
       prompt: request.prompt,
-      result: `Generated content for: ${request.prompt}`,
-      params: request.params || {},
-      tokensUsed: 100,
-      model: 'mock-model',
-      confidence: 85,
+      result: aiResponse.content,
+      params: request.params || session.defaultParams,
+      tokensUsed: aiResponse.tokensUsed,
+      model: aiResponse.model,
+      confidence: aiResponse.confidence,
       isSelected: false,
     };
 
-    const result = await storage.addGenerationResult(request.sessionId, mockResult);
+    const result = await storage.addGenerationResult(request.sessionId, generationData);
 
     return {
       success: true,
