@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
 
     const byRightType: Record<string, number> = {}
     rightTypes.forEach(rt => {
-      byRightType[rt.rightType] = rt._count._all || 0
+      byRightType[rt.rightType] = rt._count || 0
     })
 
     // Get status distribution (Infringement model uses 'status', not 'severity')
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
 
     const byStatus: Record<string, number> = {}
     statusGroups.forEach(sg => {
-      byStatus[sg.status] = sg._count._all || 0
+      byStatus[sg.status] = sg._count || 0
     })
 
     // Get recent infringements

@@ -50,14 +50,14 @@ export async function GET(request: NextRequest) {
       data: rights.map(r => ({
         id: r.id,
         artistId: r.artistId,
-        type: r.type,
-        title: r.title,
-        description: r.description,
+        contentId: r.contentId,
+        rightType: r.rightType,
+        rightHolder: r.rightHolder,
+        licenseType: r.licenseType,
         registrationNumber: r.registrationNumber,
-        registrationDate: r.registrationDate,
-        expiryDate: r.expiryDate,
-        status: r.status,
-        protectedContent: r.protectedContent ? JSON.parse(r.protectedContent) : [],
+        startDate: r.startDate,
+        endDate: r.endDate,
+        territories: JSON.parse(r.territories),
         createdAt: r.createdAt,
         updatedAt: r.updatedAt
       }))
@@ -98,14 +98,13 @@ export async function POST(request: NextRequest) {
     const right = await prisma.right.create({
       data: {
         artistId: artist.id,
-        type: body.type,
-        title: body.title,
-        description: body.description,
+        contentId: body.contentId,
+        rightType: body.type,
+        rightHolder: body.rightHolder || artist.name,
+        licenseType: body.licenseType || 'exclusive',
         registrationNumber: body.registrationNumber,
-        registrationDate: body.registrationDate ? new Date(body.registrationDate) : null,
-        expiryDate: body.expiryDate ? new Date(body.expiryDate) : null,
-        status: 'active',
-        protectedContent: body.protectedContent ? JSON.stringify(body.protectedContent) : '[]'
+        startDate: new Date(),
+        territories: JSON.stringify(body.territories || ['JP'])
       }
     })
 
@@ -114,14 +113,14 @@ export async function POST(request: NextRequest) {
       data: {
         id: right.id,
         artistId: right.artistId,
-        type: right.type,
-        title: right.title,
-        description: right.description,
+        contentId: right.contentId,
+        rightType: right.rightType,
+        rightHolder: right.rightHolder,
+        licenseType: right.licenseType,
         registrationNumber: right.registrationNumber,
-        registrationDate: right.registrationDate,
-        expiryDate: right.expiryDate,
-        status: right.status,
-        protectedContent: right.protectedContent ? JSON.parse(right.protectedContent) : [],
+        startDate: right.startDate,
+        endDate: right.endDate,
+        territories: JSON.parse(right.territories),
         createdAt: right.createdAt,
         updatedAt: right.updatedAt
       }

@@ -49,8 +49,8 @@ export async function GET(request: NextRequest) {
       include: {
         right: {
           select: {
-            title: true,
-            type: true
+            rightType: true,
+            contentId: true
           }
         }
       }
@@ -62,12 +62,11 @@ export async function GET(request: NextRequest) {
         id: i.id,
         artistId: i.artistId,
         rightId: i.rightId,
-        rightTitle: i.right.title,
-        rightType: i.right.type,
-        url: i.url,
-        platform: i.platform,
+        rightType: i.right.rightType,
+        contentId: i.right.contentId,
+        detectedUrl: i.detectedUrl,
+        detectedPlatform: i.detectedPlatform,
         description: i.description,
-        severity: i.severity,
         status: i.status,
         detectedAt: i.detectedAt,
         resolvedAt: i.resolvedAt,
@@ -124,18 +123,20 @@ export async function POST(request: NextRequest) {
       data: {
         artistId: artist.id,
         rightId: body.rightId,
-        url: body.url,
-        platform: body.platform,
+        contentId: body.contentId,
+        detectedUrl: body.url,
+        detectedPlatform: body.platform,
         description: body.description,
-        severity: body.severity || 'medium',
-        status: 'detected',
-        detectedAt: new Date()
+        detectionMethod: 'manual',
+        confidence: 50,
+        recommendedAction: 'review',
+        status: 'detected'
       },
       include: {
         right: {
           select: {
-            title: true,
-            type: true
+            rightType: true,
+            contentId: true
           }
         }
       }
@@ -147,11 +148,11 @@ export async function POST(request: NextRequest) {
         id: infringement.id,
         artistId: infringement.artistId,
         rightId: infringement.rightId,
-        rightTitle: infringement.right.title,
-        url: infringement.url,
-        platform: infringement.platform,
+        rightType: infringement.right.rightType,
+        contentId: infringement.contentId,
+        detectedUrl: infringement.detectedUrl,
+        detectedPlatform: infringement.detectedPlatform,
         description: infringement.description,
-        severity: infringement.severity,
         status: infringement.status,
         detectedAt: infringement.detectedAt,
         createdAt: infringement.createdAt,

@@ -4,8 +4,8 @@ import { prisma } from '@/lib/prisma'
 interface CreateDistributionRequest {
   contentId: string
   platforms: string[]
-  scheduledAt?: string
-  metadata?: Record<string, unknown>
+  scheduledDate?: string
+  description?: string
 }
 
 export async function GET(request: NextRequest) {
@@ -63,9 +63,9 @@ export async function GET(request: NextRequest) {
         contentType: d.content.type,
         platforms: JSON.parse(d.platforms),
         status: d.status,
-        scheduledAt: d.scheduledAt,
-        publishedAt: d.publishedAt,
-        metadata: d.metadata ? JSON.parse(d.metadata) : {},
+        scheduledDate: d.scheduledDate,
+        publishedDate: d.publishedDate,
+        description: d.description,
         createdAt: d.createdAt,
         updatedAt: d.updatedAt
       }))
@@ -119,10 +119,12 @@ export async function POST(request: NextRequest) {
       data: {
         artistId: artist.id,
         contentId: body.contentId,
+        title: content.title,
         platforms: JSON.stringify(body.platforms),
-        status: body.scheduledAt ? 'scheduled' : 'draft',
-        scheduledAt: body.scheduledAt ? new Date(body.scheduledAt) : null,
-        metadata: body.metadata ? JSON.stringify(body.metadata) : '{}'
+        status: body.scheduledDate ? 'scheduled' : 'draft',
+        scheduledDate: body.scheduledDate ? new Date(body.scheduledDate) : null,
+        description: body.description || null,
+        tags: JSON.stringify([])
       },
       include: {
         content: {
@@ -143,8 +145,9 @@ export async function POST(request: NextRequest) {
         contentTitle: distribution.content.title,
         platforms: JSON.parse(distribution.platforms),
         status: distribution.status,
-        scheduledAt: distribution.scheduledAt,
-        metadata: distribution.metadata ? JSON.parse(distribution.metadata) : {},
+        scheduledDate: distribution.scheduledDate,
+        publishedDate: distribution.publishedDate,
+        description: distribution.description,
         createdAt: distribution.createdAt,
         updatedAt: distribution.updatedAt
       }

@@ -4,7 +4,7 @@ import { generateWithAI } from '@/lib/ai/personalized-ai'
 
 interface GenerateRequest {
   prompt: string
-  type: 'melody' | 'lyrics' | 'chord' | 'artwork'
+  type: 'melody' | 'lyrics' | 'artwork' | 'concept' | 'story' | 'video_concept' | 'social_post' | 'other'
   mood?: string
   style?: string
   useAI?: boolean  // Toggle for real AI vs mock
@@ -78,9 +78,9 @@ export async function POST(request: NextRequest) {
             colorPalette: JSON.parse(artist.colorPalette || '[]') as string[],
           },
           communicationStyle: {
-            tone: artist.tone,
-            emojiUsage: artist.emojiUsage,
-            responseLength: artist.responseLength,
+            tone: artist.tone as 'friendly' | 'professional' | 'casual' | 'inspiring',
+            emojiUsage: artist.emojiUsage as 'minimal' | 'medium' | 'frequent',
+            responseLength: artist.responseLength as 'short' | 'moderate' | 'long',
             languagePreferences: JSON.parse(artist.languagePreferences || '["ja"]') as string[],
           },
           values: {

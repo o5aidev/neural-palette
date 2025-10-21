@@ -9,11 +9,15 @@ export async function POST(
   try {
     const messageId = params.id
 
-    // Get message
-    const message = await prisma.fanMessage.findUnique({
+    // Get message with thread and artist
+    const message = await prisma.message.findUnique({
       where: { id: messageId },
       include: {
-        artist: true
+        thread: {
+          include: {
+            artist: true
+          }
+        }
       }
     })
 
@@ -24,44 +28,57 @@ export async function POST(
       )
     }
 
-    // Check if response already exists
-    if (message.aiResponse) {
+    // Check if AI response already exists in the thread
+    const existingResponse = await prisma.message.findFirst({
+      where: {
+        threadId: message.threadId,
+        role: 'ai'
+      },
+      orderBy: {
+        timestamp: 'desc'
+      }
+    })
+
+    if (existingResponse) {
       return NextResponse.json({
         success: true,
         data: {
-          id: message.id,
-          response: message.aiResponse,
-          generatedAt: message.responseGeneratedAt
+          id: existingResponse.id,
+          response: existingResponse.content,
+          generatedAt: existingResponse.timestamp,
+          model: existingResponse.model,
+          tokensUsed: existingResponse.tokensUsed
         }
       })
     }
 
     // Convert Prisma artist to ArtistDNA format
+    const artist = message.thread.artist
     const artistDNA = {
-      id: message.artist.id,
-      name: message.artist.name,
-      bio: message.artist.bio,
+      id: artist.id,
+      name: artist.name,
+      bio: artist.bio,
       creativeStyle: {
-        visualThemes: JSON.parse(message.artist.visualThemes || '[]') as string[],
-        musicGenres: JSON.parse(message.artist.musicGenres || '[]') as string[],
-        writingStyle: message.artist.writingStyle,
-        colorPalette: JSON.parse(message.artist.colorPalette || '[]') as string[],
+        visualThemes: JSON.parse(artist.visualThemes || '[]') as string[],
+        musicGenres: JSON.parse(artist.musicGenres || '[]') as string[],
+        writingStyle: artist.writingStyle,
+        colorPalette: JSON.parse(artist.colorPalette || '[]') as string[],
       },
       communicationStyle: {
-        tone: message.artist.tone,
-        emojiUsage: message.artist.emojiUsage,
-        responseLength: message.artist.responseLength,
-        languagePreferences: JSON.parse(message.artist.languagePreferences || '["ja"]') as string[],
+        tone: artist.tone as 'friendly' | 'professional' | 'casual' | 'inspiring',
+        emojiUsage: artist.emojiUsage as 'minimal' | 'medium' | 'frequent',
+        responseLength: artist.responseLength as 'short' | 'moderate' | 'long',
+        languagePreferences: JSON.parse(artist.languagePreferences || '["ja"]') as string[],
       },
       values: {
-        coreValues: JSON.parse(message.artist.coreValues || '[]') as string[],
-        artisticVision: message.artist.artisticVision,
-        fanRelationshipPhilosophy: message.artist.fanRelationshipPhilosophy,
+        coreValues: JSON.parse(artist.coreValues || '[]') as string[],
+        artisticVision: artist.artisticVision,
+        fanRelationshipPhilosophy: artist.fanRelationshipPhilosophy,
       },
       milestones: [],
-      createdAt: message.artist.createdAt,
-      updatedAt: message.artist.updatedAt,
-      version: message.artist.version
+      createdAt: artist.createdAt,
+      updatedAt: artist.updatedAt,
+      version: artist.version
     }
 
     // Generate AI response
@@ -72,24 +89,27 @@ export async function POST(
       message.sentiment as any
     )
 
-    // Update message with response
-    const updatedMessage = await prisma.fanMessage.update({
-      where: { id: messageId },
+    // Create AI response message
+    const responseMessage = await prisma.message.create({
       data: {
-        aiResponse: aiResponse.content,
-        responseGeneratedAt: new Date()
+        threadId: message.threadId,
+        role: 'ai',
+        content: aiResponse.content,
+        model: aiResponse.model,
+        tokensUsed: aiResponse.tokensUsed,
+        confidence: aiResponse.confidence
       }
     })
 
     return NextResponse.json({
       success: true,
       data: {
-        id: updatedMessage.id,
-        response: updatedMessage.aiResponse,
-        generatedAt: updatedMessage.responseGeneratedAt,
-        model: aiResponse.model,
-        tokensUsed: aiResponse.tokensUsed,
-        confidence: aiResponse.confidence
+        id: responseMessage.id,
+        response: responseMessage.content,
+        generatedAt: responseMessage.timestamp,
+        model: responseMessage.model,
+        tokensUsed: responseMessage.tokensUsed,
+        confidence: responseMessage.confidence
       }
     })
   } catch (error) {

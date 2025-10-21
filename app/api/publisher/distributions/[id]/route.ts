@@ -23,24 +23,24 @@ export async function PATCH(
     // Build update data
     const updateData: {
       status?: string
-      scheduledAt?: Date | null
-      publishedAt?: Date | null
+      scheduledDate?: Date | null
+      publishedDate?: Date | null
       platforms?: string
-      metadata?: string
+      description?: string
       updatedAt: Date
     } = {
       updatedAt: new Date()
     }
 
     if (body.status) updateData.status = body.status
-    if (body.scheduledAt !== undefined) {
-      updateData.scheduledAt = body.scheduledAt ? new Date(body.scheduledAt) : null
+    if (body.scheduledDate !== undefined) {
+      updateData.scheduledDate = body.scheduledDate ? new Date(body.scheduledDate) : null
     }
-    if (body.publishedAt !== undefined) {
-      updateData.publishedAt = body.publishedAt ? new Date(body.publishedAt) : null
+    if (body.publishedDate !== undefined) {
+      updateData.publishedDate = body.publishedDate ? new Date(body.publishedDate) : null
     }
     if (body.platforms) updateData.platforms = JSON.stringify(body.platforms)
-    if (body.metadata) updateData.metadata = JSON.stringify(body.metadata)
+    if (body.description) updateData.description = body.description
 
     const updated = await prisma.distribution.update({
       where: { id: distributionId },
@@ -64,9 +64,9 @@ export async function PATCH(
         contentTitle: updated.content.title,
         platforms: JSON.parse(updated.platforms),
         status: updated.status,
-        scheduledAt: updated.scheduledAt,
-        publishedAt: updated.publishedAt,
-        metadata: updated.metadata ? JSON.parse(updated.metadata) : {},
+        scheduledDate: updated.scheduledDate,
+        publishedDate: updated.publishedDate,
+        description: updated.description,
         createdAt: updated.createdAt,
         updatedAt: updated.updatedAt
       }

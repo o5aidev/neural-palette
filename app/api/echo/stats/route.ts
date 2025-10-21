@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     const bySentiment: Record<string, number> = {}
     sentimentGroups.forEach(group => {
       if (group.sentiment) {
-        bySentiment[group.sentiment] = group._count._all || 0
+        bySentiment[group.sentiment] = group._count || 0
       }
     })
 

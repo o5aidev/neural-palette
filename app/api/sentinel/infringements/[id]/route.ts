@@ -46,8 +46,8 @@ export async function PATCH(
       include: {
         right: {
           select: {
-            title: true,
-            type: true
+            rightType: true,
+            contentId: true
           }
         }
       }
@@ -59,11 +59,11 @@ export async function PATCH(
         id: updated.id,
         artistId: updated.artistId,
         rightId: updated.rightId,
-        rightTitle: updated.right.title,
-        url: updated.url,
-        platform: updated.platform,
+        rightType: updated.right.rightType,
+        contentId: updated.right.contentId,
+        detectedUrl: updated.detectedUrl,
+        detectedPlatform: updated.detectedPlatform,
         description: updated.description,
-        severity: updated.severity,
         status: updated.status,
         detectedAt: updated.detectedAt,
         resolvedAt: updated.resolvedAt,
