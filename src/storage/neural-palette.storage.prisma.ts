@@ -79,7 +79,6 @@ export class NeuralPaletteStoragePrisma {
         // Tags
         tags: {
           create: input.tags.map((t) => ({
-            id: t.id,
             name: t.name,
             category: t.category,
           })),
@@ -204,16 +203,16 @@ export class NeuralPaletteStoragePrisma {
     }
 
     // Search Text（タイトルまたは説明文に含まれる）
-    if (filter.searchText) {
+    if (filter.search) {
       where.OR = [
         {
           title: {
-            contains: filter.searchText,
+            contains: filter.search,
           },
         },
         {
           description: {
-            contains: filter.searchText,
+            contains: filter.search,
           },
         },
       ];
@@ -266,7 +265,6 @@ export class NeuralPaletteStoragePrisma {
 
       updateData.tags = {
         create: input.tags.map((t) => ({
-          id: t.id,
           name: t.name,
           category: t.category,
         })),

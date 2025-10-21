@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { generateWithAI } from '@/lib/ai/personalized-ai'
 
 interface GenerateRequest {
   prompt: string
   type: 'melody' | 'lyrics' | 'chord' | 'artwork'
   mood?: string
   style?: string
+  useAI?: boolean  // Toggle for real AI vs mock
 }
 
 export async function POST(request: NextRequest) {
@@ -56,8 +58,66 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Simulate AI generation (replace with real AI service)
-    const simulatedResult = generateMockResult(body.type, body.prompt, body.mood)
+    let generatedContent: string
+    let modelUsed: string
+    let tokensUsed: number
+    let confidence: number
+
+    // Use real AI if requested and API keys are available
+    if (body.useAI) {
+      try {
+        // Convert Prisma artist to ArtistDNA format
+        const artistDNA = {
+          id: artist.id,
+          name: artist.name,
+          bio: artist.bio,
+          visualThemes: JSON.parse(artist.visualThemes || '[]'),
+          musicGenres: JSON.parse(artist.musicGenres || '[]'),
+          writingStyle: artist.writingStyle,
+          colorPalette: JSON.parse(artist.colorPalette || '[]'),
+          tone: artist.tone as any,
+          emojiUsage: artist.emojiUsage as any,
+          responseLength: artist.responseLength as any,
+          languagePreferences: JSON.parse(artist.languagePreferences || '["ja"]'),
+          coreValues: JSON.parse(artist.coreValues || '[]'),
+          artisticVision: artist.artisticVision,
+          fanRelationshipPhilosophy: artist.fanRelationshipPhilosophy,
+          createdAt: artist.createdAt,
+          updatedAt: artist.updatedAt,
+          version: artist.version
+        }
+
+        const aiResponse = await generateWithAI({
+          artistDNA,
+          prompt: body.prompt,
+          type: body.type,
+          params: {
+            mood: body.mood,
+            style: body.style,
+            temperature: 0.8,
+            maxTokens: 2000
+          }
+        })
+
+        generatedContent = aiResponse.content
+        modelUsed = aiResponse.model
+        tokensUsed = aiResponse.tokensUsed
+        confidence = aiResponse.confidence
+      } catch (aiError) {
+        console.error('AI generation error:', aiError)
+        // Fallback to mock if AI fails
+        generatedContent = generateMockResult(body.type, body.prompt, body.mood)
+        modelUsed = 'mock-fallback'
+        tokensUsed = Math.floor(Math.random() * 500) + 100
+        confidence = 50
+      }
+    } else {
+      // Use mock generation
+      generatedContent = generateMockResult(body.type, body.prompt, body.mood)
+      modelUsed = 'mock'
+      tokensUsed = Math.floor(Math.random() * 500) + 100
+      confidence = Math.floor(Math.random() * 30) + 70
+    }
 
     // Save generation result
     const result = await prisma.generationResult.create({
@@ -65,14 +125,15 @@ export async function POST(request: NextRequest) {
         sessionId: session.id,
         type: body.type,
         prompt: body.prompt,
-        result: simulatedResult,
+        result: generatedContent,
         params: JSON.stringify({
           mood: body.mood,
-          style: body.style
+          style: body.style,
+          useAI: body.useAI
         }),
-        tokensUsed: Math.floor(Math.random() * 500) + 100,
-        model: 'gpt-4',
-        confidence: Math.floor(Math.random() * 30) + 70
+        tokensUsed,
+        model: modelUsed,
+        confidence
       }
     })
 
@@ -96,7 +157,8 @@ export async function POST(request: NextRequest) {
         tokensUsed: result.tokensUsed,
         model: result.model,
         confidence: result.confidence,
-        generatedAt: result.generatedAt
+        generatedAt: result.generatedAt,
+        usedRealAI: body.useAI && modelUsed !== 'mock-fallback'
       }
     }, { status: 201 })
   } catch (error) {
@@ -108,7 +170,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Mock result generator (replace with real AI)
+// Mock result generator (fallback)
 function generateMockResult(type: string, prompt: string, mood?: string): string {
   const moodText = mood ? ` (${mood}な雰囲気で)` : ''
 

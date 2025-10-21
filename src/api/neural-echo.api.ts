@@ -37,7 +37,7 @@ import type { AIMessage } from '../services/ai-service.js';
 
 const prisma = new PrismaClient();
 const storage = new NeuralEchoStoragePrisma(prisma);
-const identityStorage = new NeuralIdentityStoragePrisma(prisma);
+const identityStorage = new NeuralIdentityStoragePrisma();
 
 // ============================================================================
 // Fan Profile API
@@ -313,7 +313,7 @@ export async function generateResponse(
     }
 
     // Get artist DNA
-    const artistDNA = await identityStorage.getArtistDNA(thread.artistId);
+    const artistDNA = await identityStorage.findById(thread.artistId);
     if (!artistDNA) {
       throw new Error('Artist DNA not found');
     }
@@ -321,9 +321,8 @@ export async function generateResponse(
     // Analyze fan message sentiment first
     const sentimentResult = await personalizedAI.analyzeSentiment(request.fanMessage);
 
-    // Get conversation history
-    const messages = await storage.getThreadMessages(request.threadId);
-    const conversationHistory: AIMessage[] = messages
+    // Get conversation history from thread
+    const conversationHistory: AIMessage[] = (thread.messages || [])
       .slice(-5) // Last 5 messages for context
       .map(m => ({
         role: m.role === 'fan' ? 'user' as const : 'assistant' as const,
@@ -370,32 +369,31 @@ export async function generateResponse(
       role: 'ai',
       content: aiResponse.content,
       sentiment: sentimentResult.sentiment,
-      confidence: aiResponse.confidence,
       metadata: {
         generatedPrompt: request.fanMessage,
         model: aiResponse.model,
         tokensUsed: aiResponse.tokensUsed,
         provider: aiResponse.provider,
+        confidence: aiResponse.confidence,
         sentimentConfidence: sentimentResult.confidence,
       },
     });
 
     // Update thread status and sentiment
     await storage.updateConversationThread(request.threadId, {
-      status: request.autoSend ? 'sent' : 'generated',
+      status: 'generated',
       sentiment: sentimentResult.sentiment,
     });
 
     // Update fan profile sentiment history
     const fan = await storage.getFanProfile(thread.fanId);
     if (fan) {
-      const sentimentHistory = JSON.parse(fan.sentimentHistory);
-      sentimentHistory.push(sentimentResult.sentiment);
+      const sentimentHistory = [...fan.sentimentHistory, sentimentResult.sentiment];
 
       await storage.updateFanProfile(thread.fanId, {
         lastInteractionAt: new Date(),
         totalInteractions: fan.totalInteractions + 1,
-        sentimentHistory: JSON.stringify(sentimentHistory.slice(-10)), // Keep last 10
+        sentimentHistory: sentimentHistory.slice(-10), // Keep last 10
       });
     }
 

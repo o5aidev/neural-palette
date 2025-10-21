@@ -7,44 +7,44 @@ const navigationItems = [
   {
     name: 'Neural Identity',
     href: '/dashboard/identity',
-    icon: '<�',
-    description: '��ƣ��DNA�'
+    icon: '👤',
+    description: 'アーティストDNA管理'
   },
   {
     name: 'Neural Palette',
     href: '/dashboard/content',
-    icon: '=�',
-    description: '����ġ'
+    icon: '🎨',
+    description: 'コンテンツ管理'
   },
   {
     name: 'Neural Muse',
     href: '/dashboard/muse',
-    icon: '(',
-    description: 'AIu\/�'
+    icon: '✨',
+    description: 'AI創作支援'
   },
   {
     name: 'Neural Echo',
     href: '/dashboard/echo',
-    icon: '=�',
-    description: 'ա�A'
+    icon: '💬',
+    description: 'ファン対話AI'
   },
   {
     name: 'Neural Publisher',
     href: '/dashboard/publisher',
-    icon: '=�',
-    description: '�����M�'
+    icon: '📢',
+    description: 'コンテンツ配信'
   },
   {
     name: 'Neural Connector',
     href: '/dashboard/connector',
-    icon: '=',
-    description: 'SNS#:'
+    icon: '🔗',
+    description: 'SNS連携'
   },
   {
     name: 'Neural Sentinel',
     href: '/dashboard/sentinel',
-    icon: '=�',
-    description: '))�w'
+    icon: '🛡️',
+    description: '権利保護'
   }
 ]
 

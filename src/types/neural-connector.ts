@@ -39,6 +39,14 @@ export type PostType =
   | 'story';
 
 /**
+ * 接続ステータス
+ */
+export type ConnectionStatus =
+  | 'active'       // アクティブ
+  | 'inactive'     // 非アクティブ
+  | 'error';       // エラー
+
+/**
  * SNSアカウント連携
  */
 export interface SocialConnection {
@@ -153,6 +161,15 @@ export interface UpdateSocialPostInput {
   platforms?: SocialPlatform[];
   status?: PostStatus;
   scheduledAt?: Date;
+}
+
+/**
+ * SNS接続フィルター
+ */
+export interface SocialConnectionFilter {
+  artistId?: string;
+  platform?: SocialPlatform;
+  status?: ConnectionStatus;
 }
 
 /**

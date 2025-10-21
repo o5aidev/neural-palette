@@ -286,7 +286,7 @@ export class AIResponseCache {
    */
   invalidateArtist(artistId: string): number {
     let invalidated = 0;
-    const entries = Array.from((this.cache as any).cache.entries());
+    const entries = Array.from((this.cache as any).cache.entries()) as Array<[string, any]>;
 
     for (const [key, entry] of entries) {
       const value = entry.value;

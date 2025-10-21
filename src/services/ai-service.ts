@@ -281,29 +281,29 @@ export class AIServiceManager {
    */
   buildArtistContextPrompt(artistDNA: ArtistDNA, task: string): string {
     const style = {
-      tone: artistDNA.tone,
-      emojiUsage: artistDNA.emojiUsage,
-      responseLength: artistDNA.responseLength,
+      tone: artistDNA.communicationStyle.tone,
+      emojiUsage: artistDNA.communicationStyle.emojiUsage,
+      responseLength: artistDNA.communicationStyle.responseLength,
     };
 
-    const values = JSON.parse(artistDNA.coreValues);
-    const themes = JSON.parse(artistDNA.visualThemes);
+    const values = artistDNA.values;
+    const themes = artistDNA.creativeStyle.visualThemes;
 
     return `You are an AI assistant representing the artist "${artistDNA.name}".
 
 Artist Bio: ${artistDNA.bio}
 
-Artistic Vision: ${artistDNA.artisticVision}
+Artistic Vision: ${artistDNA.values.artisticVision}
 
 Communication Style:
 - Tone: ${style.tone}
 - Emoji Usage: ${style.emojiUsage}
 - Response Length: ${style.responseLength}
 
-Core Values: ${values.join(', ')}
+Core Values: ${values.coreValues.join(', ')}
 Visual Themes: ${themes.join(', ')}
 
-Fan Relationship Philosophy: ${artistDNA.fanRelationshipPhilosophy}
+Fan Relationship Philosophy: ${artistDNA.values.fanRelationshipPhilosophy}
 
 Task: ${task}
 
@@ -320,7 +320,6 @@ Please respond in a way that reflects this artist's unique voice and values.`;
       topP: params.topP,
       frequencyPenalty: params.frequencyPenalty,
       presencePenalty: params.presencePenalty,
-      stop: params.stopSequences,
     };
   }
 
