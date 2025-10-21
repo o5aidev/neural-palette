@@ -3,7 +3,15 @@ import { prisma } from '@/lib/prisma'
 import { ArtistIdentity, CreateIdentityInput } from '@/lib/api/types'
 
 // Helper to convert Prisma ArtistDNA to API ArtistIdentity
-function toArtistIdentity(artistDNA: any): ArtistIdentity {
+function toArtistIdentity(artistDNA: {
+  id: string
+  name: string
+  bio: string
+  musicGenres: string
+  visualThemes: string
+  createdAt: Date
+  updatedAt: Date
+}): ArtistIdentity {
   return {
     id: artistDNA.id,
     artistName: artistDNA.name,
@@ -16,7 +24,7 @@ function toArtistIdentity(artistDNA: any): ArtistIdentity {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Get first artist (in real app, would filter by user)
     const artistDNA = await prisma.artistDNA.findFirst({

@@ -63,24 +63,10 @@ function isValidMessageRole(role: string): boolean {
 }
 
 /**
- * エンゲージメントスコアの検証 (0-100)
- */
-function isValidEngagementScore(score: number): boolean {
-  return Number.isInteger(score) && score >= 0 && score <= 100;
-}
-
-/**
  * 信頼度スコアの検証 (0-100)
  */
 function isValidConfidence(value: number): boolean {
   return Number.isInteger(value) && value >= 0 && value <= 100;
-}
-
-/**
- * 評価の検証 (1-5)
- */
-function isValidRating(rating: number): boolean {
-  return Number.isInteger(rating) && rating >= 1 && rating <= 5;
 }
 
 /**

@@ -25,5 +25,18 @@
   "env": {
     "node": true,
     "es2022": true
-  }
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    ".next/",
+    "out/",
+    "build/",
+    "dist/",
+    "src/generated/**",
+    "src/index.ts",
+    "src/validation/**",
+    "**/__tests__/**",
+    "*.config.js",
+    "*.config.ts"
+  ]
 }

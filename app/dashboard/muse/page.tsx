@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import Button from '@/components/ui/Button'
 import Textarea from '@/components/ui/Textarea'
 import Select from '@/components/ui/Select'
-import { CardSkeleton, TableSkeleton } from '@/components/ui/Skeleton'
+import { TableSkeleton } from '@/components/ui/Skeleton'
 import Badge from '@/components/ui/Badge'
 import Modal from '@/components/ui/Modal'
 import { useToast } from '@/lib/hooks/useToast'
@@ -74,13 +74,6 @@ export default function MusePage() {
     lyrics: '歌詞生成',
     chord: 'コード進行',
     artwork: 'アートワーク'
-  }
-
-  const moodMap: Record<string, string> = {
-    happy: 'ハッピー',
-    melancholic: 'メランコリック',
-    energetic: 'エネルギッシュ',
-    relaxed: 'リラックス'
   }
 
   return (

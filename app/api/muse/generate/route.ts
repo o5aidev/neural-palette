@@ -71,17 +71,24 @@ export async function POST(request: NextRequest) {
           id: artist.id,
           name: artist.name,
           bio: artist.bio,
-          visualThemes: JSON.parse(artist.visualThemes || '[]'),
-          musicGenres: JSON.parse(artist.musicGenres || '[]'),
-          writingStyle: artist.writingStyle,
-          colorPalette: JSON.parse(artist.colorPalette || '[]'),
-          tone: artist.tone as any,
-          emojiUsage: artist.emojiUsage as any,
-          responseLength: artist.responseLength as any,
-          languagePreferences: JSON.parse(artist.languagePreferences || '["ja"]'),
-          coreValues: JSON.parse(artist.coreValues || '[]'),
-          artisticVision: artist.artisticVision,
-          fanRelationshipPhilosophy: artist.fanRelationshipPhilosophy,
+          creativeStyle: {
+            visualThemes: JSON.parse(artist.visualThemes || '[]') as string[],
+            musicGenres: JSON.parse(artist.musicGenres || '[]') as string[],
+            writingStyle: artist.writingStyle,
+            colorPalette: JSON.parse(artist.colorPalette || '[]') as string[],
+          },
+          communicationStyle: {
+            tone: artist.tone,
+            emojiUsage: artist.emojiUsage,
+            responseLength: artist.responseLength,
+            languagePreferences: JSON.parse(artist.languagePreferences || '["ja"]') as string[],
+          },
+          values: {
+            coreValues: JSON.parse(artist.coreValues || '[]') as string[],
+            artisticVision: artist.artisticVision,
+            fanRelationshipPhilosophy: artist.fanRelationshipPhilosophy,
+          },
+          milestones: [],
           createdAt: artist.createdAt,
           updatedAt: artist.updatedAt,
           version: artist.version
@@ -176,7 +183,7 @@ function generateMockResult(type: string, prompt: string, mood?: string): string
 
   switch (type) {
     case 'lyrics':
-      return `[AI生成歌詞]\n\n${prompt}をテーマに${moodText}：\n\n静かな夜に　君を想う\n遠い記憶が　蘇る\n二人で歩いた　あの道を\n今はひとりで　辿ってる\n\n※サンプル生成結果です`
+      return `[AI生成歌詞]\n\n${prompt}をテーマに${moodText}:\n\n静かな夜に 君を想う\n遠い記憶が 蘇る\n二人で歩いた あの道を\n今はひとりで 辿ってる\n\n※サンプル生成結果です`
 
     case 'melody':
       return `[メロディアイデア]\n\nキー: C Major\nテンポ: 80 BPM\nコード進行: C - Am - F - G\n\nメロディライン:\nC-E-G-E-C-D-E-F-E-D-C\n\n${moodText}な雰囲気に合わせた構成\n※サンプル生成結果です`

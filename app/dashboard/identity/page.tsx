@@ -41,7 +41,7 @@ export default function IdentityPage() {
     }
   )
 
-  const { values, errors, isSubmitting, handleChange, handleBlur, handleSubmit, setValues } = useForm<IdentityFormData>(
+  const { values, errors, handleChange, handleBlur, handleSubmit, setValues } = useForm<IdentityFormData>(
     {
       artistName: '',
       genre: '',

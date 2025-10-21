@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build query
-    const where: any = {}
+    const where: { sessionId?: string | { in: string[] } } = {}
     if (sessionId) {
       where.sessionId = sessionId
     } else {

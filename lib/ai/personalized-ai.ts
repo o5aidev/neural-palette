@@ -2,6 +2,8 @@
  * Next.js wrapper for Personalized AI Service
  */
 
+import type { PersonalizedGenerationRequest } from '@/src/services/personalized-ai.service'
+
 // Re-export types from src
 export type { PersonalizedGenerationRequest, PersonalizedGenerationResponse } from '@/src/services/personalized-ai.service'
 export type { AIMessage, AICompletionRequest } from '@/src/services/ai-service'
@@ -12,7 +14,7 @@ export async function getPersonalizedAI() {
   return PersonalizedAIService.getInstance()
 }
 
-export async function generateWithAI(request: any) {
+export async function generateWithAI(request: PersonalizedGenerationRequest) {
   const personalizedAI = await getPersonalizedAI()
   return await personalizedAI.generateCreative(request)
 }
