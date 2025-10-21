@@ -1,15 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 import { ArtistIdentity, CreateIdentityInput } from '@/lib/api/types'
 
-// In-memory storage for demo (replace with Prisma in production)
-let identityStore: ArtistIdentity | null = null
+// Helper to convert Prisma ArtistDNA to API ArtistIdentity
+function toArtistIdentity(artistDNA: any): ArtistIdentity {
+  return {
+    id: artistDNA.id,
+    artistName: artistDNA.name,
+    genre: JSON.parse(artistDNA.musicGenres || '[]')[0] || '',
+    biography: artistDNA.bio,
+    influences: [],
+    musicalFeatures: JSON.parse(artistDNA.visualThemes || '[]'),
+    createdAt: artistDNA.createdAt,
+    updatedAt: artistDNA.updatedAt
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {
-    // Simulate database fetch
-    await new Promise(resolve => setTimeout(resolve, 500))
+    // Get first artist (in real app, would filter by user)
+    const artistDNA = await prisma.artistDNA.findFirst({
+      orderBy: { createdAt: 'desc' }
+    })
 
-    if (!identityStore) {
+    if (!artistDNA) {
       return NextResponse.json(
         { success: false, error: 'Identity not found' },
         { status: 404 }
@@ -18,9 +32,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: identityStore
+      data: toArtistIdentity(artistDNA)
     })
   } catch (error) {
+    console.error('GET /api/identity error:', error)
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -40,27 +55,31 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Simulate database insert
-    await new Promise(resolve => setTimeout(resolve, 800))
-
-    const newIdentity: ArtistIdentity = {
-      id: Math.random().toString(36).substring(2, 9),
-      artistName: body.artistName,
-      genre: body.genre,
-      biography: body.biography || '',
-      influences: body.influences || [],
-      musicalFeatures: body.musicalFeatures || [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-
-    identityStore = newIdentity
+    // Create new artist DNA
+    const artistDNA = await prisma.artistDNA.create({
+      data: {
+        name: body.artistName,
+        bio: body.biography || '',
+        musicGenres: JSON.stringify([body.genre]),
+        visualThemes: JSON.stringify(body.musicalFeatures || []),
+        writingStyle: '',
+        colorPalette: JSON.stringify([]),
+        tone: 'friendly',
+        emojiUsage: 'moderate',
+        responseLength: 'medium',
+        languagePreferences: JSON.stringify(['ja']),
+        coreValues: JSON.stringify([]),
+        artisticVision: '',
+        fanRelationshipPhilosophy: ''
+      }
+    })
 
     return NextResponse.json({
       success: true,
-      data: newIdentity
+      data: toArtistIdentity(artistDNA)
     }, { status: 201 })
   } catch (error) {
+    console.error('POST /api/identity error:', error)
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -70,29 +89,37 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const body: Partial<ArtistIdentity> = await request.json()
+    const body: Partial<CreateIdentityInput> = await request.json()
 
-    if (!identityStore) {
+    // Get first artist
+    const existingArtist = await prisma.artistDNA.findFirst({
+      orderBy: { createdAt: 'desc' }
+    })
+
+    if (!existingArtist) {
       return NextResponse.json(
         { success: false, error: 'Identity not found' },
         { status: 404 }
       )
     }
 
-    // Simulate database update
-    await new Promise(resolve => setTimeout(resolve, 800))
-
-    identityStore = {
-      ...identityStore,
-      ...body,
-      updatedAt: new Date()
-    }
+    // Update artist DNA
+    const updatedArtist = await prisma.artistDNA.update({
+      where: { id: existingArtist.id },
+      data: {
+        ...(body.artistName && { name: body.artistName }),
+        ...(body.biography && { bio: body.biography }),
+        ...(body.genre && { musicGenres: JSON.stringify([body.genre]) }),
+        ...(body.musicalFeatures && { visualThemes: JSON.stringify(body.musicalFeatures) })
+      }
+    })
 
     return NextResponse.json({
       success: true,
-      data: identityStore
+      data: toArtistIdentity(updatedArtist)
     })
   } catch (error) {
+    console.error('PUT /api/identity error:', error)
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
