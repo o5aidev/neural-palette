@@ -275,7 +275,7 @@ describe('NeuralPaletteStoragePrisma', () => {
     });
 
     it('should filter by search text', async () => {
-      const filter: ContentFilter = { searchText: 'chill' };
+      const filter: ContentFilter = { search: 'chill' };
       const results = await storage.search(filter);
 
       expect(results).toHaveLength(1);

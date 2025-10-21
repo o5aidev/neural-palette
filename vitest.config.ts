@@ -10,12 +10,18 @@ export default defineConfig({
         singleFork: true,
       },
     },
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/e2e/**', // Exclude E2E tests (run with Playwright)
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
         'dist/',
+        'e2e/',
         '**/*.config.ts',
         '**/*.d.ts',
         '**/index.ts', // Demo files
