@@ -51,6 +51,10 @@ model ArtistDNA {
   rights            Right[]
   infringements     Infringement[]
   monitoringRules   MonitoringRule[]
+  creativeSessions  CreativeSession[]
+  inspirations      Inspiration[]
+  fanProfiles       FanProfile[]
+  conversationThreads ConversationThread[]
 
   @@index([name])
 }
@@ -93,12 +97,6 @@ model Content {
   version   Int      @default(1)
 
   // Relations
-<<<<<<< HEAD
-  artist        ArtistDNA      @relation(fields: [artistId], references: [id], onDelete: Cascade)
-  tags          Tag[]
-  mediaFiles    MediaFile[]
-  collaborators Collaborator[]
-=======
   artist         ArtistDNA      @relation(fields: [artistId], references: [id], onDelete: Cascade)
   tags           Tag[]
   mediaFiles     MediaFile[]
@@ -107,7 +105,6 @@ model Content {
   socialPosts    SocialPost[]
   rights         Right[]
   infringements  Infringement[]
->>>>>>> 8eacea9 (feat: Phase 3 foundation - Type definitions and database schema)
 
   @@index([artistId])
   @@index([type])
@@ -155,8 +152,6 @@ model Collaborator {
 
   @@index([contentId])
 }
-<<<<<<< HEAD
-=======
 
 // ============================================================================
 // Neural Publisher (Distribution Management)
@@ -370,4 +365,293 @@ model MonitoringRule {
   @@index([artistId])
   @@index([isActive])
 }
->>>>>>> 8eacea9 (feat: Phase 3 foundation - Type definitions and database schema)
+
+// ============================================================================
+// Neural Muse (AI Creative Support)
+// ============================================================================
+
+model CreativeSession {
+  id          String   @id @default(uuid())
+  artistId    String
+  contentId   String?
+  title       String
+  type        String   // CreativeType enum
+  status      String   // SessionStatus enum
+  description String?
+
+  // AI Settings
+  defaultParams String   // JSON GenerationParams
+
+  // Progress
+  totalGenerations Int      @default(0)
+  selectedCount    Int      @default(0)
+
+  // Timestamps
+  startedAt    DateTime @default(now())
+  lastActiveAt DateTime @default(now())
+  completedAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  version      Int      @default(1)
+
+  // Relations
+  artist      ArtistDNA          @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  generations GenerationResult[]
+  inspirations Inspiration[]
+
+  @@index([artistId])
+  @@index([type])
+  @@index([status])
+}
+
+model GenerationResult {
+  id        String   @id @default(uuid())
+  sessionId String
+  type      String   // CreativeType enum
+  prompt    String
+  result    String
+  params    String   // JSON GenerationParams
+
+  // Metadata
+  tokensUsed Int
+  model      String
+  confidence Int?     // 0-100
+
+  // User Feedback
+  rating     Int?     // 1-5
+  feedback   String?
+  isSelected Boolean  @default(false)
+
+  // Timestamps
+  generatedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  session CreativeSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([type])
+  @@index([isSelected])
+}
+
+model Inspiration {
+  id        String  @id @default(uuid())
+  artistId  String
+  sessionId String?
+  title     String
+  content   String
+  type      String  // CreativeType enum
+  source    String?
+  tags      String  // JSON array
+
+  // Usage
+  usedInContent String?  // JSON array of content IDs
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  artist  ArtistDNA        @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  session CreativeSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([artistId])
+  @@index([sessionId])
+  @@index([type])
+}
+
+model PromptTemplate {
+  id            String  @id @default(uuid())
+  artistId      String?
+  name          String
+  description   String?
+  type          String  // CreativeType enum
+  template      String
+  variables     String  // JSON array
+  exampleValues String? // JSON object
+  defaultParams String  // JSON GenerationParams
+
+  // Stats
+  usageCount Int     @default(0)
+  avgRating  Float?
+
+  // Meta
+  isPublic  Boolean @default(false)
+  tags      String  // JSON array
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([isPublic])
+}
+
+// ============================================================================
+// Neural Echo (Fan Interaction AI)
+// ============================================================================
+
+model FanProfile {
+  id         String   @id @default(uuid())
+  artistId   String
+  displayName String
+  externalId String?
+  platform   String?
+  email      String?
+
+  // Interaction History
+  firstInteractionAt DateTime @default(now())
+  lastInteractionAt  DateTime @default(now())
+  totalInteractions  Int      @default(0)
+
+  // Analysis
+  sentimentHistory String  // JSON array of SentimentType
+  avgSentiment     String  // SentimentType enum
+  topics           String  // JSON array
+  preferredChannel String? // ConversationChannel enum
+
+  // Engagement
+  isVIP            Boolean @default(false)
+  engagementScore  Int     @default(0) // 0-100
+
+  // Meta
+  tags      String   // JSON array
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  artist  ArtistDNA             @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  threads ConversationThread[]
+
+  @@index([artistId])
+  @@index([platform])
+  @@index([isVIP])
+}
+
+model ConversationThread {
+  id       String  @id @default(uuid())
+  artistId String
+  fanId    String
+  channel  String  // ConversationChannel enum
+  subject  String?
+  status   String  // ResponseStatus enum
+  priority String  // ConversationPriority enum
+
+  // Messages (stored in separate model)
+  messageCount Int @default(0)
+
+  // Analysis
+  sentiment           String  // SentimentType enum
+  topics              String  // JSON array
+  requiresHumanReview Boolean @default(false)
+
+  // Timestamps
+  startedAt     DateTime  @default(now())
+  lastMessageAt DateTime  @default(now())
+  resolvedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  artist   ArtistDNA @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  fan      FanProfile @relation(fields: [fanId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@index([artistId])
+  @@index([fanId])
+  @@index([status])
+  @@index([priority])
+}
+
+model Message {
+  id       String   @id @default(uuid())
+  threadId String
+  role     String   // 'fan' | 'ai' | 'artist'
+  content  String
+  sentiment   String?  // SentimentType enum
+  confidence  Int?     // 0-100
+
+  // AI Generation Info
+  generatedPrompt String?
+  model           String?
+  tokensUsed      Int?
+
+  // Feedback
+  rating          Int?     // 1-5
+  wasEdited       Boolean  @default(false)
+  editedContent   String?
+  rejectionReason String?
+
+  // Meta
+  metadata  String?  // JSON object
+  timestamp DateTime @default(now())
+
+  // Relations
+  thread ConversationThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId])
+  @@index([role])
+  @@index([timestamp])
+}
+
+model ResponseTemplate {
+  id          String  @id @default(uuid())
+  artistId    String?
+  name        String
+  description String?
+  category    String
+  template    String
+  variables   String  // JSON array
+
+  // Usage Conditions
+  triggerKeywords String?  // JSON array
+  sentiment       String?  // SentimentType enum
+  channel         String?  // ConversationChannel enum
+
+  // Stats
+  usageCount Int    @default(0)
+  avgRating  Float?
+
+  // Meta
+  isActive  Boolean @default(true)
+  tags      String  // JSON array
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model ResponseConfig {
+  id       String  @id @default(uuid())
+  artistId String  @unique
+
+  // Basic Settings
+  isEnabled   Boolean @default(true)
+  autoApprove Boolean @default(false)
+  autoSend    Boolean @default(false)
+
+  // Filters
+  minConfidence   Int    @default(70) // 0-100
+  channelSettings String // JSON object
+
+  // Response Style
+  tone               String @default("friendly")
+  maxResponseLength  Int    @default(500)
+  useEmojis          Boolean @default(true)
+
+  // Rate Limits
+  maxResponsesPerDay Int?
+  maxResponsesPerFan Int?
+
+  // Notifications
+  notifyOnNewMessage Boolean @default(true)
+  notifyEmail        String?
+
+  // Meta
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  version   Int      @default(1)
+
+  @@index([artistId])
+}
