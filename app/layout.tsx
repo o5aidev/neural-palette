@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Neural Palette - AI-Powered Artist Platform',
-  description: '��2Y�ա�hnqu����թ��',
+  description: 'アーティストのためのAI駆動型クリエイティブプラットフォーム',
 }
 
 export default function RootLayout({

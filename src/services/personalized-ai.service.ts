@@ -101,7 +101,7 @@ export class PersonalizedAIService {
     const aiRequest: AICompletionRequest = {
       messages,
       temperature: 0.7,
-      maxTokens: this.getResponseLength(artistDNA.responseLength),
+      maxTokens: this.getResponseLength(artistDNA.communicationStyle.responseLength),
       topP: 0.9,
     };
 
@@ -171,7 +171,7 @@ export class PersonalizedAIService {
       const request: PersonalizedGenerationRequest = {
         artistDNA,
         prompt: `Create a variation of this content while maintaining the same core message and artistic voice:\n\n${originalContent}`,
-        type: 'caption',
+        type: 'concept',
         params: {
           temperature: 0.8 + (i * 0.1), // Increase temperature for more variation
         },
@@ -188,35 +188,29 @@ export class PersonalizedAIService {
    * Build system prompt based on artist DNA
    */
   private buildSystemPrompt(artistDNA: ArtistDNA, type: CreativeType | 'fan_response'): string {
-    const coreValues = JSON.parse(artistDNA.coreValues);
-    const visualThemes = JSON.parse(artistDNA.visualThemes);
-    const musicGenres = JSON.parse(artistDNA.musicGenres);
+    const coreValues = artistDNA.values.coreValues;
+    const visualThemes = artistDNA.creativeStyle.visualThemes;
+    const musicGenres = artistDNA.creativeStyle.musicGenres;
 
     let typeSpecificGuidance = '';
     switch (type) {
       case 'lyrics':
         typeSpecificGuidance = `Focus on lyrical composition that reflects the music genres: ${musicGenres.join(', ')}`;
         break;
-      case 'caption':
-        typeSpecificGuidance = `Create engaging social media captions that capture attention`;
+      case 'melody':
+        typeSpecificGuidance = `Create melodic ideas that complement ${musicGenres.join(', ')}`;
         break;
-      case 'blog_post':
-        typeSpecificGuidance = `Write thoughtful blog content that provides value to readers`;
+      case 'artwork':
+        typeSpecificGuidance = `Design artwork concepts incorporating visual themes: ${visualThemes.join(', ')}`;
         break;
-      case 'email':
-        typeSpecificGuidance = `Compose professional yet personal email content`;
-        break;
-      case 'script':
-        typeSpecificGuidance = `Develop engaging script content with clear narrative flow`;
+      case 'concept':
+        typeSpecificGuidance = `Develop creative concepts aligned with core values`;
         break;
       case 'story':
         typeSpecificGuidance = `Craft compelling storytelling with emotional resonance`;
         break;
-      case 'poem':
-        typeSpecificGuidance = `Create poetic content with rhythm and imagery`;
-        break;
-      case 'other':
-        typeSpecificGuidance = `Generate creative content that aligns with the artist's vision`;
+      case 'fan_response':
+        typeSpecificGuidance = `Respond authentically to fan interaction`;
         break;
     }
 
@@ -224,8 +218,8 @@ export class PersonalizedAIService {
 
 ARTIST PROFILE:
 Bio: ${artistDNA.bio}
-Artistic Vision: ${artistDNA.artisticVision}
-Writing Style: ${artistDNA.writingStyle}
+Artistic Vision: ${artistDNA.values.artisticVision}
+Writing Style: ${artistDNA.creativeStyle.writingStyle}
 
 CREATIVE IDENTITY:
 Visual Themes: ${visualThemes.join(', ')}
@@ -233,9 +227,9 @@ Music Genres: ${musicGenres.join(', ')}
 Core Values: ${coreValues.join(', ')}
 
 COMMUNICATION STYLE:
-- Tone: ${artistDNA.tone}
-- Emoji Usage: ${artistDNA.emojiUsage}
-- Response Length: ${artistDNA.responseLength}
+- Tone: ${artistDNA.communicationStyle.tone}
+- Emoji Usage: ${artistDNA.communicationStyle.emojiUsage}
+- Response Length: ${artistDNA.communicationStyle.responseLength}
 
 TASK: ${typeSpecificGuidance}
 
@@ -253,24 +247,24 @@ IMPORTANT:
     artistDNA: ArtistDNA,
     sentiment?: SentimentType
   ): string {
-    const coreValues = JSON.parse(artistDNA.coreValues);
+    const coreValues = artistDNA.values.coreValues;
 
     let sentimentGuidance = '';
     if (sentiment) {
       switch (sentiment) {
         case 'excited':
-        case 'happy':
+        case 'positive':
           sentimentGuidance = 'Match their positive energy with enthusiasm';
           break;
-        case 'concerned':
-        case 'frustrated':
+        case 'negative':
+        case 'critical':
           sentimentGuidance = 'Respond with empathy and understanding';
-          break;
-        case 'angry':
-          sentimentGuidance = 'Respond calmly and professionally, de-escalate if needed';
           break;
         case 'supportive':
           sentimentGuidance = 'Express gratitude and appreciation';
+          break;
+        case 'curious':
+          sentimentGuidance = 'Provide thoughtful and informative responses';
           break;
         default:
           sentimentGuidance = 'Respond warmly and authentically';
@@ -280,13 +274,13 @@ IMPORTANT:
     return `You are responding to a fan on behalf of the artist "${artistDNA.name}".
 
 ARTIST PROFILE:
-Fan Relationship Philosophy: ${artistDNA.fanRelationshipPhilosophy}
+Fan Relationship Philosophy: ${artistDNA.values.fanRelationshipPhilosophy}
 Core Values: ${coreValues.join(', ')}
 
 COMMUNICATION STYLE:
-- Tone: ${artistDNA.tone}
-- Emoji Usage: ${artistDNA.emojiUsage}
-- Response Length: ${artistDNA.responseLength}
+- Tone: ${artistDNA.communicationStyle.tone}
+- Emoji Usage: ${artistDNA.communicationStyle.emojiUsage}
+- Response Length: ${artistDNA.communicationStyle.responseLength}
 
 ${sentiment ? `FAN SENTIMENT: ${sentiment}\nGUIDANCE: ${sentimentGuidance}` : ''}
 
@@ -294,8 +288,8 @@ IMPORTANT:
 - Be authentic and true to the artist's voice
 - Build genuine connection with the fan
 - Reflect the artist's values and philosophy
-- ${this.getEmojiGuidance(artistDNA.emojiUsage)}
-- Keep responses ${artistDNA.responseLength}`;
+- ${this.getEmojiGuidance(artistDNA.communicationStyle.emojiUsage)}
+- Keep responses ${artistDNA.communicationStyle.responseLength}`;
   }
 
   /**
@@ -306,12 +300,12 @@ IMPORTANT:
     artistDNA: ArtistDNA,
     type: CreativeType | 'fan_response'
   ): string {
-    const colorPalette = JSON.parse(artistDNA.colorPalette);
+    const colorPalette = artistDNA.creativeStyle.colorPalette;
 
     let enhancement = prompt;
 
     // Add visual context for visual types
-    if (['image_description', 'caption'].includes(type) && colorPalette.length > 0) {
+    if (['artwork', 'concept'].includes(type) && colorPalette.length > 0) {
       enhancement += `\n\nSuggested color palette: ${colorPalette.join(', ')}`;
     }
 

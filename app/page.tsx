@@ -6,7 +6,7 @@ export default function Home() {
           Neural Palette
         </h1>
         <p className="text-center text-lg mb-4">
-          AIÆÕn¢üÆ£¹È/ô×éÃÈÕ©üà
+          AIé§†å‹•å‹ã‚¢ãƒ¼ãƒ†ã‚£ã‚¹ãƒˆæ”¯æ´ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ 
         </p>
         <div className="grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-3 lg:text-left gap-4 mt-8">
           <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100">
@@ -14,7 +14,7 @@ export default function Home() {
               Neural Identity
             </h2>
             <p className="m-0 max-w-[30ch] text-sm opacity-50">
-              ¢üÆ£¹ÈnDNA’š©Wìên'’İX
+              ã‚¢ãƒ¼ãƒ†ã‚£ã‚¹ãƒˆã®DNAç®¡ç†ã¨ãƒ‘ãƒ¼ã‚½ãƒŠãƒ©ã‚¤ã‚º
             </p>
           </div>
 
@@ -23,7 +23,7 @@ export default function Home() {
               Neural Muse
             </h2>
             <p className="m-0 max-w-[30ch] text-sm opacity-50">
-              AIu\/ôgL^­ã×·çóÖí°’
+              AIå‰µä½œæ”¯æ´ã§ã‚¯ãƒªã‚¨ã‚¤ãƒ†ã‚£ãƒ“ãƒ†ã‚£ã‚’åŠ é€Ÿ
             </p>
           </div>
 
@@ -32,7 +32,7 @@ export default function Home() {
               Neural Echo
             </h2>
             <p className="m-0 max-w-[30ch] text-sm opacity-50">
-              AIÕ¡ó¤AgÑü½Êé¤ºUŒ_ÜT’
+              AIãƒ•ã‚¡ãƒ³å¯¾è©±ã§ã‚¨ãƒ³ã‚²ãƒ¼ã‚¸ãƒ¡ãƒ³ãƒˆæœ€å¤§åŒ–
             </p>
           </div>
         </div>

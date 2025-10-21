@@ -156,6 +156,15 @@ export interface UpdateSocialPostInput {
 }
 
 /**
+ * SNS接続フィルター
+ */
+export interface SocialConnectionFilter {
+  artistId?: string;
+  platform?: SocialPlatform;
+  status?: ConnectionStatus;
+}
+
+/**
  * 投稿フィルター
  */
 export interface SocialPostFilter {

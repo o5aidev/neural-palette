@@ -34,7 +34,7 @@ import { NeuralIdentityStoragePrisma } from '../storage/neural-identity.storage.
 
 const prisma = new PrismaClient();
 const storage = new NeuralMuseStoragePrisma(prisma);
-const identityStorage = new NeuralIdentityStoragePrisma(prisma);
+const identityStorage = new NeuralIdentityStoragePrisma();
 
 // ============================================================================
 // Creative Session API
@@ -178,7 +178,7 @@ export async function generateContent(
     }
 
     // Get artist DNA
-    const artistDNA = await identityStorage.getArtistDNA(session.artistId);
+    const artistDNA = await identityStorage.findById(session.artistId);
     if (!artistDNA) {
       throw new Error('Artist DNA not found');
     }
@@ -202,7 +202,6 @@ export async function generateContent(
         prompt: request.prompt,
         type: request.type,
         params: request.params,
-        context: request.context,
       });
 
       // Cache the response
