@@ -236,11 +236,14 @@ async function main() {
       data: {
         artistId: artist.id,
         contentId: contents[0].id,
+        type: 'image',
+        content: 'Excited to share my latest work from the Digital Dreams collection! 🎨✨',
+        mediaUrls: JSON.stringify([]),
         platforms: JSON.stringify(['instagram', 'twitter']),
-        caption: 'Excited to share my latest work from the Digital Dreams collection! 🎨✨',
         status: 'published',
-        publishedAt: new Date('2024-03-15T10:05:00Z'),
-        metrics: JSON.stringify({
+        postedAt: new Date('2024-03-15T10:05:00Z'),
+        platformPosts: JSON.stringify([]),
+        engagementStats: JSON.stringify({
           likes: 2543,
           comments: 187,
           shares: 92,
@@ -252,11 +255,14 @@ async function main() {
       data: {
         artistId: artist.id,
         contentId: contents[1].id,
+        type: 'video',
+        content: 'New video: Behind the Pixels - Episode 1! Join me as I break down my creative process.',
+        mediaUrls: JSON.stringify([]),
         platforms: JSON.stringify(['youtube']),
-        caption: 'New video: Behind the Pixels - Episode 1! Join me as I break down my creative process.',
         status: 'published',
-        publishedAt: new Date('2024-04-20T14:10:00Z'),
-        metrics: JSON.stringify({
+        postedAt: new Date('2024-04-20T14:10:00Z'),
+        platformPosts: JSON.stringify([]),
+        engagementStats: JSON.stringify({
           likes: 1823,
           comments: 234,
           views: 12456,
@@ -292,12 +298,14 @@ async function main() {
       data: {
         artistId: artist.id,
         rightId: rights[0].id,
-        url: 'https://example.com/unauthorized-use',
-        platform: 'unknown-site',
+        contentId: contents[0].id,
+        detectedUrl: 'https://example.com/unauthorized-use',
+        detectedPlatform: 'unknown-site',
         description: 'Unauthorized use of artwork in commercial context',
-        severity: 'high',
+        detectionMethod: 'manual',
+        confidence: 80,
+        recommendedAction: 'takedown',
         status: 'detected',
-        detectedAt: new Date(),
       },
     }),
   ])
@@ -310,8 +318,7 @@ async function main() {
       data: {
         artistId: artist.id,
         name: 'Artwork Copyright Monitor',
-        description: 'Monitor for unauthorized use of my artwork',
-        ruleType: 'image-matching',
+        contentIds: JSON.stringify([contents[0].id]),
         keywords: JSON.stringify(['Demo Artist', 'Digital Dreams']),
         platforms: JSON.stringify(['google', 'pinterest', 'instagram']),
         isActive: true,
@@ -326,15 +333,14 @@ async function main() {
     prisma.creativeSession.create({
       data: {
         artistId: artist.id,
-        theme: 'Abstract Minimalism',
-        mood: 'focused',
-        startedAt: new Date('2024-05-10T09:00:00Z'),
-        endedAt: new Date('2024-05-10T12:30:00Z'),
-        output: JSON.stringify({
-          type: 'sketches',
-          count: 15,
-          satisfaction: 8,
+        title: 'Abstract Minimalism',
+        type: 'artwork',
+        status: 'completed',
+        defaultParams: JSON.stringify({
+          style: 'minimalist',
+          mood: 'focused',
         }),
+        completedAt: new Date('2024-05-10T12:30:00Z'),
       },
     }),
   ])
@@ -347,9 +353,9 @@ async function main() {
       data: {
         artistId: artist.id,
         title: 'Kandinsky Color Theory',
-        description: 'Exploring Kandinsky\'s approach to color and emotion',
+        content: 'Exploring Kandinsky\'s approach to color and emotion',
+        type: 'concept',
         source: 'book',
-        url: 'https://example.com/kandinsky',
         tags: JSON.stringify(['color-theory', 'abstract', 'inspiration']),
         notes: 'Great insights on how colors evoke specific emotions',
       },

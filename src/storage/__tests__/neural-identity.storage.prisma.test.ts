@@ -252,7 +252,9 @@ describe('NeuralIdentityStoragePrisma', () => {
       const updateInput: UpdateArtistDNAInput = {
         bio: 'Updated bio',
         values: {
+          coreValues: ['creativity'],
           artisticVision: 'Updated vision',
+          fanRelationshipPhilosophy: 'Updated philosophy',
         },
       };
 

@@ -60,7 +60,6 @@ describe('NeuralPaletteStoragePrisma', () => {
         collaborators: [],
         metadata: {
           duration: 180,
-          tempo: 120,
           key: 'C Major',
         },
       };
@@ -87,8 +86,8 @@ describe('NeuralPaletteStoragePrisma', () => {
         type: 'song',
         status: 'draft',
         tags: [
-          { id: 'tag-1', name: 'electronic', category: 'genre' },
-          { id: 'tag-2', name: 'chill', category: 'mood' },
+          { name: 'electronic', category: 'genre' },
+          { name: 'chill', category: 'mood' },
         ],
         mediaFiles: [
           {
@@ -219,7 +218,7 @@ describe('NeuralPaletteStoragePrisma', () => {
         description: 'A chill electronic track',
         type: 'song',
         status: 'published',
-        tags: [{ id: 'tag-1', name: 'electronic', category: 'genre' }],
+        tags: [{ name: 'electronic', category: 'genre' }],
         mediaFiles: [],
         collaborators: [],
         metadata: {},
@@ -231,7 +230,7 @@ describe('NeuralPaletteStoragePrisma', () => {
         description: 'An energetic rock song',
         type: 'song',
         status: 'draft',
-        tags: [{ id: 'tag-2', name: 'rock', category: 'genre' }],
+        tags: [{ name: 'rock', category: 'genre' }],
         mediaFiles: [],
         collaborators: [],
         metadata: {},
@@ -243,7 +242,7 @@ describe('NeuralPaletteStoragePrisma', () => {
         description: 'Video for the electronic song',
         type: 'video',
         status: 'published',
-        tags: [{ id: 'tag-3', name: 'electronic', category: 'genre' }],
+        tags: [{ name: 'electronic', category: 'genre' }],
         mediaFiles: [],
         collaborators: [],
         metadata: {},

@@ -186,8 +186,11 @@ describe('validateUpdateArtistDNAInput', () => {
   });
 
   it('無効なHEXカラーの場合はエラー', () => {
-    const input = {
+    const input: Partial<Omit<ArtistDNA, 'id' | 'createdAt' | 'updatedAt' | 'version'>> = {
       creativeStyle: {
+        visualThemes: ['abstract'],
+        musicGenres: ['electronic'],
+        writingStyle: 'poetic',
         colorPalette: ['invalid'],
       },
     };
@@ -195,9 +198,11 @@ describe('validateUpdateArtistDNAInput', () => {
   });
 
   it('coreValuesが空配列の場合はエラー', () => {
-    const input = {
+    const input: Partial<Omit<ArtistDNA, 'id' | 'createdAt' | 'updatedAt' | 'version'>> = {
       values: {
         coreValues: [],
+        artisticVision: 'Test vision',
+        fanRelationshipPhilosophy: 'Test philosophy',
       },
     };
     expect(() => validateUpdateArtistDNAInput(input)).toThrow(ValidationError);
