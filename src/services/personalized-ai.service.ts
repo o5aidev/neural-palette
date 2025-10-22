@@ -124,32 +124,41 @@ export class PersonalizedAIService {
     sentiment: SentimentType;
     confidence: number;
   }> {
-    const messages: AIMessage[] = [
-      {
-        role: 'system',
-        content: `You are a sentiment analysis expert. Analyze the sentiment of the following text and respond with ONLY a JSON object in this exact format:
+    try {
+      const messages: AIMessage[] = [
+        {
+          role: 'system',
+          content: `You are a sentiment analysis expert. Analyze the sentiment of the following text and respond with ONLY a JSON object in this exact format:
 {
   "sentiment": "excited" | "happy" | "neutral" | "concerned" | "frustrated" | "angry" | "supportive",
   "confidence": <number between 0 and 100>
 }`,
-      },
-      { role: 'user', content: text },
-    ];
+        },
+        { role: 'user', content: text },
+      ];
 
-    const response = await aiService.complete({
-      messages,
-      temperature: 0.1,
-      maxTokens: 100,
-    });
+      const response = await aiService.complete({
+        messages,
+        temperature: 0.1,
+        maxTokens: 100,
+      });
 
-    try {
-      const result = JSON.parse(response.content);
-      return {
-        sentiment: result.sentiment as SentimentType,
-        confidence: Math.min(100, Math.max(0, result.confidence)),
-      };
-    } catch {
-      // Fallback to neutral if parsing fails
+      try {
+        const result = JSON.parse(response.content);
+        return {
+          sentiment: result.sentiment as SentimentType,
+          confidence: Math.min(100, Math.max(0, result.confidence)),
+        };
+      } catch {
+        // Fallback to neutral if parsing fails
+        return {
+          sentiment: 'neutral',
+          confidence: 50,
+        };
+      }
+    } catch (error: any) {
+      // Fallback to neutral if AI service is unavailable
+      console.warn('AI service unavailable for sentiment analysis:', error?.message || error);
       return {
         sentiment: 'neutral',
         confidence: 50,

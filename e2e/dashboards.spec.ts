@@ -12,7 +12,7 @@ test.describe('Dashboard Pages', () => {
   })
 
   test('Palette Dashboard should load', async ({ page }) => {
-    await page.goto('/dashboard/palette')
+    await page.goto('/dashboard/palette', { waitUntil: 'networkidle' })
     await expect(page.getByRole('heading', { name: 'Neural Palette' })).toBeVisible()
   })
 

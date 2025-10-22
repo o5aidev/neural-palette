@@ -91,11 +91,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Analyze sentiment (with fallback for testing environment)
-    let sentimentResult
+    let sentimentResult: { sentiment: 'positive' | 'neutral' | 'negative'; confidence: number }
     try {
       sentimentResult = await personalizedAI.analyzeSentiment(body.content)
-    } catch (error) {
-      console.warn('AI sentiment analysis failed, using fallback:', error)
+    } catch (error: any) {
+      console.warn('AI sentiment analysis failed, using fallback:', error?.message || error)
       sentimentResult = {
         sentiment: 'neutral' as const,
         confidence: 50
