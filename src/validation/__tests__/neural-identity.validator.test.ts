@@ -9,7 +9,7 @@ import {
   validateUpdateArtistDNAInput,
   ValidationError,
 } from '../neural-identity.validator.js';
-import type { CreateArtistDNAInput, Milestone } from '../../types/neural-identity.js';
+import type { CreateArtistDNAInput, Milestone, ArtistDNA } from '../../types/neural-identity.js';
 
 describe('validateMilestone', () => {
   it('正常なMilestoneを受け入れる', () => {

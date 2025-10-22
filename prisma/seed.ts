@@ -353,11 +353,10 @@ async function main() {
       data: {
         artistId: artist.id,
         title: 'Kandinsky Color Theory',
-        content: 'Exploring Kandinsky\'s approach to color and emotion',
+        content: 'Exploring Kandinsky\'s approach to color and emotion. Great insights on how colors evoke specific emotions',
         type: 'concept',
         source: 'book',
         tags: JSON.stringify(['color-theory', 'abstract', 'inspiration']),
-        notes: 'Great insights on how colors evoke specific emotions',
       },
     }),
   ])

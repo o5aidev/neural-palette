@@ -66,8 +66,8 @@ export async function POST(
       },
       communicationStyle: {
         tone: artist.tone as 'friendly' | 'professional' | 'casual' | 'inspiring',
-        emojiUsage: artist.emojiUsage as 'minimal' | 'medium' | 'frequent',
-        responseLength: artist.responseLength as 'short' | 'moderate' | 'long',
+        emojiUsage: artist.emojiUsage as 'high' | 'medium' | 'low',
+        responseLength: artist.responseLength as 'brief' | 'moderate' | 'detailed',
         languagePreferences: JSON.parse(artist.languagePreferences || '["ja"]') as string[],
       },
       values: {

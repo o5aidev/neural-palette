@@ -123,10 +123,10 @@ export async function POST(request: NextRequest) {
       data: {
         artistId: artist.id,
         rightId: body.rightId,
-        contentId: body.contentId,
+        contentId: body.contentId || body.rightId, // Use rightId if contentId not provided
         detectedUrl: body.url,
         detectedPlatform: body.platform,
-        description: body.description,
+        description: body.description || '',
         detectionMethod: 'manual',
         confidence: 50,
         recommendedAction: 'review',
