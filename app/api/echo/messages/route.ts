@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { personalizedAI } from '@/src/services/personalized-ai.service'
+import { SentimentType } from '@/src/types/neural-echo'
 
 interface CreateMessageRequest {
   content: string
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Analyze sentiment (with fallback for testing environment)
-    let sentimentResult: { sentiment: 'positive' | 'neutral' | 'negative'; confidence: number }
+    let sentimentResult: { sentiment: SentimentType; confidence: number }
     try {
       sentimentResult = await personalizedAI.analyzeSentiment(body.content)
     } catch (error: any) {
