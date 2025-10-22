@@ -262,7 +262,7 @@ describe('NeuralIdentityStoragePrisma', () => {
 
       expect(updated.bio).toBe('Updated bio');
       expect(updated.values.artisticVision).toBe('Updated vision');
-      expect(updated.values.coreValues).toEqual(updateInput.values.coreValues);
+      expect(updated.values.coreValues).toEqual(updateInput.values!.coreValues);
       expect(updated.version).toBe(2);
       expect(updated.updatedAt.getTime()).toBeGreaterThanOrEqual(created.updatedAt.getTime());
     });
