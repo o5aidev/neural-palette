@@ -2,13 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 interface CreateRightRequest {
+  contentId: string
   type: string
-  title: string
-  description?: string
+  rightHolder?: string
+  licenseType?: string
   registrationNumber?: string
-  registrationDate?: string
-  expiryDate?: string
-  protectedContent?: string[]
+  territories?: string[]
 }
 
 export async function GET(request: NextRequest) {
@@ -75,9 +74,9 @@ export async function POST(request: NextRequest) {
   try {
     const body: CreateRightRequest = await request.json()
 
-    if (!body.type || !body.title) {
+    if (!body.type || !body.contentId) {
       return NextResponse.json(
-        { success: false, error: 'Type and title are required' },
+        { success: false, error: 'Type and contentId are required' },
         { status: 400 }
       )
     }

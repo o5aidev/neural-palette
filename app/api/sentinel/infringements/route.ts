@@ -3,10 +3,10 @@ import { prisma } from '@/lib/prisma'
 
 interface CreateInfringementRequest {
   rightId: string
+  contentId: string
   url: string
   platform: string
   description?: string
-  severity?: string
 }
 
 export async function GET(request: NextRequest) {
