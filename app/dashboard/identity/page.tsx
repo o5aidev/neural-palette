@@ -15,6 +15,7 @@ import ToastContainer from '@/components/ui/ToastContainer'
 import { apiClient } from '@/lib/api/client'
 import { ArtistIdentity, CreateIdentityInput } from '@/lib/api/types'
 import { ArtistStats } from '@/components/identity/ArtistStats'
+import { User, Music, Users, FileText } from 'lucide-react'
 
 interface IdentityFormData {
   artistName: string
@@ -197,7 +198,9 @@ export default function IdentityPage() {
             value={identity?.data ? '100%' : '0%'}
             change={identity?.data ? '完了' : '未作成'}
             period="全体"
-            trend={identity?.data ? 'up' : 'neutral'}
+            trend={identity?.data ? 'up' : 'down'}
+            icon={User}
+            moduleColor="bg-identity"
           />
           <KPICard
             label="音楽的特徴"
@@ -205,20 +208,26 @@ export default function IdentityPage() {
             change={`${selectedTags.length}個選択`}
             period="DNA"
             trend="up"
+            icon={Music}
+            moduleColor="bg-muse"
           />
           <KPICard
             label="影響アーティスト"
             value={values.influences.split(',').filter(Boolean).length.toString()}
             change="登録済み"
             period="履歴"
-            trend="neutral"
+            trend={values.influences.split(',').filter(Boolean).length > 0 ? 'up' : 'down'}
+            icon={Users}
+            moduleColor="bg-connector"
           />
           <KPICard
             label="バイオグラフィー"
             value={`${values.biography.length}`}
             change="/500文字"
             period="詳細度"
-            trend={values.biography.length > 200 ? 'up' : 'neutral'}
+            trend={values.biography.length > 200 ? 'up' : 'down'}
+            icon={FileText}
+            moduleColor="bg-palette"
           />
         </div>
 

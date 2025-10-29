@@ -1,34 +1,130 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  /* Wamodern color palette - washi paper off-white tones */
+  --background: oklch(0.98 0.005 80);
+  --foreground: oklch(0.25 0.01 260);
+  --card: oklch(0.995 0.003 80);
+  --card-foreground: oklch(0.25 0.01 260);
+  --popover: oklch(0.995 0.003 80);
+  --popover-foreground: oklch(0.25 0.01 260);
+
+  /* Indigo (藍色) as primary color */
+  --primary: oklch(0.45 0.12 260);
+  --primary-foreground: oklch(0.98 0.005 80);
+
+  /* Bamboo green (竹) as accent */
+  --secondary: oklch(0.55 0.08 150);
+  --secondary-foreground: oklch(0.98 0.005 80);
+
+  --muted: oklch(0.96 0.005 80);
+  --muted-foreground: oklch(0.5 0.01 260);
+  --accent: oklch(0.96 0.005 80);
+  --accent-foreground: oklch(0.25 0.01 260);
+
+  /* Muted destructive colors */
+  --destructive: oklch(0.5 0.12 25);
+  --destructive-foreground: oklch(0.98 0.005 80);
+
+  /* Very subtle borders */
+  --border: oklch(0.92 0.005 80);
+  --input: oklch(0.96 0.005 80);
+  --ring: oklch(0.45 0.12 260);
+
+  /* Sharp corners for zen aesthetic */
+  --radius: 0.25rem;
+
+  /* Solid module colors - no gradients, muted tones */
+  --identity-color: oklch(0.55 0.1 300);
+  --palette-color: oklch(0.5 0.1 200);
+  --muse-color: oklch(0.6 0.1 40);
+  --echo-color: oklch(0.55 0.08 150);
+  --publisher-color: oklch(0.48 0.12 260);
+  --connector-color: oklch(0.6 0.1 340);
+  --sentinel-color: oklch(0.35 0.01 260);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+.dark {
+  /* Sumi ink (墨色) dark tones */
+  --background: oklch(0.15 0.01 260);
+  --foreground: oklch(0.95 0.005 80);
+  --card: oklch(0.18 0.01 260);
+  --card-foreground: oklch(0.95 0.005 80);
+  --popover: oklch(0.18 0.01 260);
+  --popover-foreground: oklch(0.95 0.005 80);
+
+  --primary: oklch(0.55 0.12 260);
+  --primary-foreground: oklch(0.98 0.005 80);
+
+  --secondary: oklch(0.6 0.08 150);
+  --secondary-foreground: oklch(0.15 0.01 260);
+
+  --muted: oklch(0.22 0.01 260);
+  --muted-foreground: oklch(0.6 0.01 260);
+  --accent: oklch(0.22 0.01 260);
+  --accent-foreground: oklch(0.95 0.005 80);
+
+  --destructive: oklch(0.5 0.12 25);
+  --destructive-foreground: oklch(0.98 0.005 80);
+
+  --border: oklch(0.28 0.01 260);
+  --input: oklch(0.22 0.01 260);
+  --ring: oklch(0.55 0.12 260);
+
+  /* Dark mode solid colors */
+  --identity-color: oklch(0.6 0.1 300);
+  --palette-color: oklch(0.55 0.1 200);
+  --muse-color: oklch(0.65 0.1 40);
+  --echo-color: oklch(0.6 0.08 150);
+  --publisher-color: oklch(0.55 0.12 260);
+  --connector-color: oklch(0.65 0.1 340);
+  --sentinel-color: oklch(0.4 0.01 260);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+    outline-color: color-mix(in oklch, var(--ring), transparent 50%);
   }
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans), 'Yu Gothic', sans-serif;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .font-serif {
+    font-family: var(--font-serif), serif;
+  }
+
+  /* Solid color utilities for modules */
+  .bg-identity {
+    background-color: var(--identity-color);
+  }
+  .bg-palette {
+    background-color: var(--palette-color);
+  }
+  .bg-muse {
+    background-color: var(--muse-color);
+  }
+  .bg-echo {
+    background-color: var(--echo-color);
+  }
+  .bg-publisher {
+    background-color: var(--publisher-color);
+  }
+  .bg-connector {
+    background-color: var(--connector-color);
+  }
+  .bg-sentinel {
+    background-color: var(--sentinel-color);
   }
 }
 
