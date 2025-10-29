@@ -45,6 +45,14 @@ describe('NeuralPaletteStoragePrisma', () => {
 
     const artist = await identityStorage.create(artistInput);
     testArtistId = artist.id;
+
+    // Verify test artist was created successfully
+    expect(artist).toBeDefined();
+    expect(testArtistId).toBeDefined();
+    expect(testArtistId).toBeTruthy();
+
+    // Small delay to ensure artist is fully persisted
+    await new Promise(resolve => setTimeout(resolve, 10));
   });
 
   describe('create', () => {
@@ -125,6 +133,11 @@ describe('NeuralPaletteStoragePrisma', () => {
 
   describe('findById', () => {
     it('should find Content by ID', async () => {
+      // Verify artist still exists
+      const artist = await identityStorage.findById(testArtistId);
+      expect(artist).toBeDefined();
+      expect(artist?.id).toBe(testArtistId);
+
       const input: CreateContentInput = {
         artistId: testArtistId,
         title: 'Test Song',
@@ -212,6 +225,11 @@ describe('NeuralPaletteStoragePrisma', () => {
 
   describe('search', () => {
     beforeEach(async () => {
+      // Verify artist still exists before creating test content
+      const artist = await identityStorage.findById(testArtistId);
+      expect(artist).toBeDefined();
+      expect(artist?.id).toBe(testArtistId);
+
       await storage.create({
         artistId: testArtistId,
         title: 'Electronic Song',

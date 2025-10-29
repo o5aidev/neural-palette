@@ -246,8 +246,17 @@ describe('NeuralIdentityStoragePrisma', () => {
 
       const created = await storage.create(input);
 
+      // Verify creation was successful
+      expect(created).toBeDefined();
+      expect(created.id).toBeDefined();
+
+      // Verify artist can be found
+      const found = await storage.findById(created.id);
+      expect(found).toBeDefined();
+      expect(found?.id).toBe(created.id);
+
       // Small delay to ensure timestamp difference
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const updateInput: UpdateArtistDNAInput = {
         bio: 'Updated bio',

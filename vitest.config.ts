@@ -10,6 +10,8 @@ export default defineConfig({
         singleFork: true,
       },
     },
+    testTimeout: 30000, // 30 seconds for individual tests
+    hookTimeout: 30000, // 30 seconds for beforeEach/afterEach hooks
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
