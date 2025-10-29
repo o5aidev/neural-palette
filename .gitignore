@@ -175,3 +175,11 @@ prisma/dev.db
 prisma/dev.db-journal
 prisma/*.db
 prisma/*.db-journal
+
+# Test artifacts
+.backup/
+test-results/
+playwright-report/
+
+# Duplicate/backup files
+* 2.*
