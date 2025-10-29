@@ -1,6 +1,6 @@
 "use client"
 
-import { Badge } from "@/components/ui/Badge"
+import { Badge } from "@/components/ui/badge"
 import { BarChart3, TrendingUp } from "lucide-react"
 
 const stats = [

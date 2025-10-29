@@ -1,6 +1,6 @@
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { KPICard } from '@/components/ui/KPICard'
-import { Badge } from '@/components/ui/Badge'
+import { Badge } from '@/components/ui/badge'
 import { Users, Link, TrendingUp, Clock } from 'lucide-react'
 
 export default function ConnectorPage() {

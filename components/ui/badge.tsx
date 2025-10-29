@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 
 interface BadgeProps {
   children: ReactNode
-  variant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'primary' | 'secondary'
+  variant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'primary' | 'secondary' | 'outline'
   size?: 'xs' | 'sm' | 'md'
   className?: string
 }
@@ -17,7 +17,8 @@ export function Badge({ children, variant = 'default', size = 'sm', className = 
     danger: 'bg-destructive/10 text-destructive border border-destructive/20',
     info: 'bg-primary/10 text-primary border border-primary/20',
     primary: 'bg-primary/10 text-primary border border-primary/20',
-    secondary: 'bg-secondary/10 text-secondary border border-secondary/20'
+    secondary: 'bg-secondary/10 text-secondary border border-secondary/20',
+    outline: 'bg-transparent text-foreground border border-border'
   }
 
   const sizeStyles = {

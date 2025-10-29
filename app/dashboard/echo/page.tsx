@@ -2,11 +2,11 @@
 
 import { useState } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import Textarea from '@/components/ui/Textarea'
 import Modal from '@/components/ui/Modal'
 import { KPICard } from '@/components/ui/KPICard'
-import { Badge } from '@/components/ui/Badge'
+import { Badge } from '@/components/ui/badge'
 import { useApi, useMutation } from '@/lib/hooks/useApi'
 import { useToast } from '@/lib/hooks/useToast'
 import ToastContainer from '@/components/ui/ToastContainer'

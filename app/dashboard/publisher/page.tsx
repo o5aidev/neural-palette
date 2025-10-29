@@ -2,7 +2,7 @@
 
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { KPICard } from '@/components/ui/KPICard'
-import { Badge } from '@/components/ui/Badge'
+import { Badge } from '@/components/ui/badge'
 import { useApi } from '@/lib/hooks/useApi'
 import { useToast } from '@/lib/hooks/useToast'
 import ToastContainer from '@/components/ui/ToastContainer'
