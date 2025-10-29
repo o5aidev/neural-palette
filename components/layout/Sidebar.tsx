@@ -1,91 +1,96 @@
-'use client'
+"use client"
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { cn } from "@/lib/utils"
 
-const navigationItems = [
+const modules = [
   {
-    name: 'Neural Identity',
-    href: '/dashboard/identity',
-    icon: '👤',
-    description: 'アーティストDNA管理'
+    id: "identity",
+    name: "Neural Identity",
+    subtitle: "アーティストDNA / プロフィール",
+    colorClass: "bg-identity",
   },
   {
-    name: 'Neural Palette',
-    href: '/dashboard/content',
-    icon: '🎨',
-    description: 'コンテンツ管理'
+    id: "palette",
+    name: "Neural Palette",
+    subtitle: "コンテンツ / メディア管理",
+    colorClass: "bg-palette",
   },
   {
-    name: 'Neural Muse',
-    href: '/dashboard/muse',
-    icon: '✨',
-    description: 'AI創作支援'
+    id: "muse",
+    name: "Neural Muse",
+    subtitle: "AI創作 / セッション",
+    colorClass: "bg-muse",
   },
   {
-    name: 'Neural Echo',
-    href: '/dashboard/echo',
-    icon: '💬',
-    description: 'ファン対話AI'
+    id: "echo",
+    name: "Neural Echo",
+    subtitle: "ファン / 感情分析",
+    colorClass: "bg-echo",
   },
   {
-    name: 'Neural Publisher',
-    href: '/dashboard/publisher',
-    icon: '📢',
-    description: 'コンテンツ配信'
+    id: "publisher",
+    name: "Neural Publisher",
+    subtitle: "配信 / スケジュール",
+    colorClass: "bg-publisher",
   },
   {
-    name: 'Neural Connector',
-    href: '/dashboard/connector',
-    icon: '🔗',
-    description: 'SNS連携'
+    id: "connector",
+    name: "Neural Connector",
+    subtitle: "SNS連携 / 投稿",
+    colorClass: "bg-connector",
   },
   {
-    name: 'Neural Sentinel',
-    href: '/dashboard/sentinel',
-    icon: '🛡️',
-    description: '権利保護'
-  }
+    id: "sentinel",
+    name: "Neural Sentinel",
+    subtitle: "権利保護 / 監視",
+    colorClass: "bg-sentinel",
+  },
 ]
 
-export default function Sidebar() {
-  const pathname = usePathname()
+interface SidebarProps {
+  currentModule: string
+  onModuleChange: (module: string) => void
+}
 
+export function Sidebar({ currentModule, onModuleChange }: SidebarProps) {
   return (
-    <aside className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 min-h-screen">
-      <div className="p-6">
-        <Link href="/" className="flex items-center space-x-2 mb-8">
-          <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
-            Neural Palette
-          </span>
-        </Link>
-
-        <nav className="space-y-2">
-          {navigationItems.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`
-                  flex items-start space-x-3 px-4 py-3 rounded-lg transition-colors
-                  ${
-                    isActive
-                      ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                  }
-                `}
-              >
-                <span className="text-xl">{item.icon}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm">{item.name}</div>
-                  <div className="text-xs opacity-60 mt-0.5">{item.description}</div>
-                </div>
-              </Link>
-            )
-          })}
-        </nav>
+    <aside className="w-64 border-r border-border bg-card flex flex-col">
+      <div className="px-8 py-8 border-b border-border">
+        <h1 className="text-xl font-medium text-foreground tracking-wide">Neural Palette</h1>
+        <span className="inline-block mt-3 px-3 py-1 text-xs font-normal border border-primary/30 text-primary rounded-sm">
+          v1.0.0
+        </span>
       </div>
+
+      <nav className="flex-1 px-6 py-8 space-y-2 overflow-y-auto">
+        {modules.map((module) => {
+          const isActive = currentModule === module.id
+
+          return (
+            <button
+              key={module.id}
+              onClick={() => onModuleChange(module.id)}
+              className={cn(
+                "w-full text-left px-4 py-4 transition-colors duration-200 rounded-sm relative",
+                "hover:bg-accent/50",
+                isActive && "bg-accent border-l-2 border-primary",
+              )}
+            >
+              <div className="space-y-1">
+                <div
+                  className={cn(
+                    "text-sm font-medium leading-relaxed",
+                    isActive ? "text-foreground" : "text-foreground/70",
+                  )}
+                >
+                  {module.name}
+                </div>
+                <div className="text-xs text-muted-foreground leading-relaxed">{module.subtitle}</div>
+              </div>
+            </button>
+          )
+        })}
+      </nav>
     </aside>
   )
 }

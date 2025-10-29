@@ -1,74 +1,72 @@
+"use client"
+
 import DashboardLayout from '@/components/layout/DashboardLayout'
+import { KPICard } from "@/components/ui/KPICard"
+import { ContentList } from "@/components/palette/ContentList"
+import { CategoryStats } from "@/components/palette/CategoryStats"
+import { Palette, Sparkles, Users, Shield } from 'lucide-react'
 
 export default function PalettePage() {
   return (
-    <DashboardLayout
-      title="Neural Palette"
-      description="コンテンツを管理し、作品のバージョン管理を行います"
-    >
-      <div className="grid gap-6">
-        {/* Content Library */}
-        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">コンテンツライブラリ</h2>
-            <button className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors">
-              新規コンテンツ
-            </button>
-          </div>
+    <DashboardLayout>
+      <div className="space-y-8">
+        {/* Large Cards with Sparkline - 2x2 Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <KPICard
+            label="総コンテンツ"
+            value="248"
+            change="+12.5%"
+            period="先月比"
+            trend="up"
+            icon={Palette}
+            moduleColor="bg-palette"
+            size="large"
+            sparklineData={[210, 220, 225, 230, 235, 242, 248]}
+          />
 
-          <div className="space-y-3">
-            {[
-              { title: 'Summer Vibes 2025', type: '楽曲', status: '公開中', date: '2025-10-15' },
-              { title: 'Midnight Dreams', type: '楽曲', status: '下書き', date: '2025-10-12' },
-              { title: 'Live Performance #1', type: '動画', status: '公開中', date: '2025-10-10' },
-            ].map((content, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-              >
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900 dark:text-white">{content.title}</h3>
-                  <div className="flex items-center space-x-3 mt-1">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">{content.type}</span>
-                    <span className="text-sm text-gray-400">•</span>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">{content.date}</span>
-                  </div>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm ${
-                    content.status === '公開中'
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400'
-                  }`}
-                >
-                  {content.status}
-                </span>
-              </div>
-            ))}
-          </div>
+          <KPICard
+            label="AI生成数"
+            value="36"
+            change="+15.6%"
+            period="先週比"
+            trend="up"
+            icon={Sparkles}
+            moduleColor="bg-muse"
+            size="large"
+            sparklineData={[28, 30, 32, 33, 34, 35, 36]}
+          />
         </div>
 
-        {/* Version History */}
-        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
-          <h2 className="text-xl font-semibold mb-4">バージョン履歴</h2>
-          <div className="space-y-3">
-            {[
-              { version: 'v2.1', description: 'ミックス調整', date: '2025-10-20' },
-              { version: 'v2.0', description: 'リマスター版', date: '2025-10-18' },
-              { version: 'v1.0', description: '初回リリース', date: '2025-10-15' },
-            ].map((version, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-3 border-l-2 border-primary-500 bg-gray-50 dark:bg-gray-800/50 pl-4"
-              >
-                <div>
-                  <span className="font-medium text-gray-900 dark:text-white">{version.version}</span>
-                  <span className="text-sm text-gray-600 dark:text-gray-400 ml-3">{version.description}</span>
-                </div>
-                <span className="text-sm text-gray-500 dark:text-gray-400">{version.date}</span>
-              </div>
-            ))}
-          </div>
+        {/* Compact Cards Row - 2 Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <KPICard
+            label="ファン応答率"
+            value="98%"
+            change="+2.1%"
+            period="24h"
+            trend="up"
+            icon={Users}
+            moduleColor="bg-echo"
+            size="compact"
+          />
+          <KPICard
+            label="侵害検出"
+            value="0"
+            change="±0"
+            period="監視中"
+            trend="down"
+            icon={Shield}
+            moduleColor="bg-sentinel"
+            size="compact"
+          />
+        </div>
+
+        {/* Content List */}
+        <ContentList />
+
+        {/* Bottom Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <CategoryStats />
         </div>
       </div>
     </DashboardLayout>

@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Textarea from '@/components/ui/Textarea'
 import Select from '@/components/ui/Select'
+import { KPICard } from '@/components/ui/KPICard'
 import { CardSkeleton } from '@/components/ui/Skeleton'
 import { useForm } from '@/lib/hooks/useForm'
 import { useToast } from '@/lib/hooks/useToast'
@@ -13,6 +14,7 @@ import { useApi, useMutation } from '@/lib/hooks/useApi'
 import ToastContainer from '@/components/ui/ToastContainer'
 import { apiClient } from '@/lib/api/client'
 import { ArtistIdentity, CreateIdentityInput } from '@/lib/api/types'
+import { ArtistStats } from '@/components/identity/ArtistStats'
 
 interface IdentityFormData {
   artistName: string
@@ -110,13 +112,20 @@ export default function IdentityPage() {
 
   if (isFetching) {
     return (
-      <DashboardLayout
-        title="Neural Identity"
-        description="アーティストのDNAを定義し、独自の個性を保存・管理します"
-      >
-        <div className="grid gap-6">
-          <CardSkeleton />
-          <CardSkeleton />
+      <DashboardLayout>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+              Neural Identity
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              アーティストのDNAを定義し、独自の個性を保存・管理
+            </p>
+          </div>
+          <div className="grid gap-6">
+            <CardSkeleton />
+            <CardSkeleton />
+          </div>
         </div>
       </DashboardLayout>
     )
@@ -124,44 +133,99 @@ export default function IdentityPage() {
 
   if (fetchError && fetchError.message !== 'Identity not found') {
     return (
-      <DashboardLayout
-        title="Neural Identity"
-        description="アーティストのDNAを定義し、独自の個性を保存・管理します"
-      >
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-2">
-            エラーが発生しました
-          </h3>
-          <p className="text-red-700 dark:text-red-300 mb-4">
-            {fetchError.message}
-          </p>
-          <Button variant="danger" onClick={() => refetch()}>
-            再試行
-          </Button>
+      <DashboardLayout>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+              Neural Identity
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              アーティストのDNAを定義し、独自の個性を保存・管理
+            </p>
+          </div>
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6">
+            <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-2">
+              エラーが発生しました
+            </h3>
+            <p className="text-red-700 dark:text-red-300 mb-4">
+              {fetchError.message}
+            </p>
+            <Button variant="danger" onClick={() => refetch()}>
+              再試行
+            </Button>
+          </div>
         </div>
       </DashboardLayout>
     )
   }
 
   return (
-    <DashboardLayout
-      title="Neural Identity"
-      description="アーティストのDNAを定義し、独自の個性を保存・管理します"
-    >
+    <DashboardLayout>
       <ToastContainer toasts={toasts} onClose={removeToast} />
 
-      {identity?.data && (
-        <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <p className="text-sm text-blue-800 dark:text-blue-200">
-            最終更新: {new Date(identity.data.updatedAt).toLocaleString('ja-JP')}
-          </p>
-        </div>
-      )}
+      <div className="space-y-6">
+        {/* Header with Title */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+              Neural Identity
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              アーティストのDNAを定義し、独自の個性を保存・管理
+            </p>
+          </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6">
-        {/* Artist DNA Profile Card */}
-        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
-          <h2 className="text-xl font-semibold mb-4">アーティストプロフィール</h2>
+          <div className="flex items-center gap-3">
+            {identity?.data && (
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                最終更新: {new Date(identity.data.updatedAt).toLocaleDateString('ja-JP')}
+              </div>
+            )}
+            <button className="p-2 rounded-xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
+              <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <KPICard
+            label="プロフィール完成度"
+            value={identity?.data ? '100%' : '0%'}
+            change={identity?.data ? '完了' : '未作成'}
+            period="全体"
+            trend={identity?.data ? 'up' : 'neutral'}
+          />
+          <KPICard
+            label="音楽的特徴"
+            value={selectedTags.length.toString()}
+            change={`${selectedTags.length}個選択`}
+            period="DNA"
+            trend="up"
+          />
+          <KPICard
+            label="影響アーティスト"
+            value={values.influences.split(',').filter(Boolean).length.toString()}
+            change="登録済み"
+            period="履歴"
+            trend="neutral"
+          />
+          <KPICard
+            label="バイオグラフィー"
+            value={`${values.biography.length}`}
+            change="/500文字"
+            period="詳細度"
+            trend={values.biography.length > 200 ? 'up' : 'neutral'}
+          />
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6">
+          {/* Artist DNA Profile Card */}
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">アーティストプロフィール</h2>
           <div className="space-y-4">
             <Input
               label="アーティスト名"
@@ -201,9 +265,9 @@ export default function IdentityPage() {
           </div>
         </div>
 
-        {/* Creative DNA Card */}
-        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
-          <h2 className="text-xl font-semibold mb-4">クリエイティブDNA</h2>
+          {/* Creative DNA Card */}
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">クリエイティブDNA</h2>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -240,24 +304,28 @@ export default function IdentityPage() {
           </div>
         </div>
 
-        {/* Save Button */}
-        <div className="flex justify-end space-x-3">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => window.location.href = '/'}
-          >
-            キャンセル
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            isLoading={isSaving}
-          >
-            {identity?.data ? '更新する' : '作成する'}
-          </Button>
-        </div>
-      </form>
+          {/* Save Button */}
+          <div className="flex justify-end space-x-3">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => window.location.href = '/'}
+            >
+              キャンセル
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              isLoading={isSaving}
+            >
+              {identity?.data ? '更新する' : '作成する'}
+            </Button>
+          </div>
+        </form>
+
+        {/* Artist Stats */}
+        {identity?.data && <ArtistStats />}
+      </div>
     </DashboardLayout>
   )
 }

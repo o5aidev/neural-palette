@@ -1,34 +1,21 @@
-import Sidebar from './Sidebar'
+"use client"
 
-interface DashboardLayoutProps {
-  children: React.ReactNode
-  title?: string
-  description?: string
-}
+import type React from "react"
 
-export default function DashboardLayout({ children, title, description }: DashboardLayoutProps) {
+import { useState } from "react"
+import { Sidebar } from "./Sidebar"
+import { TopBar } from "./TopBar"
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const [currentModule, setCurrentModule] = useState("palette")
+
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950">
-      <Sidebar />
-      <main className="flex-1">
-        <div className="max-w-7xl mx-auto px-8 py-8">
-          {(title || description) && (
-            <div className="mb-8">
-              {title && (
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                  {title}
-                </h1>
-              )}
-              {description && (
-                <p className="text-gray-600 dark:text-gray-400">
-                  {description}
-                </p>
-              )}
-            </div>
-          )}
-          {children}
-        </div>
-      </main>
+    <div className="flex h-screen bg-background">
+      <Sidebar currentModule={currentModule} onModuleChange={setCurrentModule} />
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <TopBar />
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+      </div>
     </div>
   )
 }
