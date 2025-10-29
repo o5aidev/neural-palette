@@ -1,6 +1,7 @@
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { KPICard } from '@/components/ui/KPICard'
-import { Badge } from '@/components/ui/badge'
+import { Badge } from '@/components/ui/Badge'
+import { Users, Link, TrendingUp, Clock } from 'lucide-react'
 
 export default function ConnectorPage() {
   const connectedAccounts = [
@@ -52,6 +53,8 @@ export default function ConnectorPage() {
             change="+18%"
             period="全プラットフォーム"
             trend="up"
+            icon={Users}
+            moduleColor="bg-connector"
           />
           <KPICard
             label="連携アカウント"
@@ -59,6 +62,8 @@ export default function ConnectorPage() {
             change="75%"
             period="接続済み"
             trend="up"
+            icon={Link}
+            moduleColor="bg-primary-600"
           />
           <KPICard
             label="平均エンゲージメント"
@@ -66,13 +71,17 @@ export default function ConnectorPage() {
             change="+2.3%"
             period="本月"
             trend="up"
+            icon={TrendingUp}
+            moduleColor="bg-green-600"
           />
           <KPICard
             label="予約投稿"
             value="2"
             change="待機中"
             period="スケジュール"
-            trend="neutral"
+            trend="up"
+            icon={Clock}
+            moduleColor="bg-blue-600"
           />
         </div>
 

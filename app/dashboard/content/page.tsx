@@ -2,11 +2,21 @@ import DashboardLayout from '@/components/layout/DashboardLayout'
 
 export default function ContentPage() {
   return (
-    <DashboardLayout
-      title="Neural Palette"
-      description="コンテンツを管理し、作品のバージョン管理を行います"
-    >
-      <div className="grid gap-6">
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Header with Title */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+              Neural Palette
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              コンテンツを管理し、作品のバージョン管理を行います
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-6">
         {/* Content Library */}
         <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
           <div className="flex justify-between items-center mb-4">
@@ -69,6 +79,7 @@ export default function ContentPage() {
               </div>
             ))}
           </div>
+        </div>
         </div>
       </div>
     </DashboardLayout>

@@ -8,6 +8,7 @@ import { useToast } from '@/lib/hooks/useToast'
 import ToastContainer from '@/components/ui/ToastContainer'
 import { PublishSchedule } from '@/components/publisher/PublishSchedule'
 import { PlatformStats } from '@/components/publisher/PlatformStats'
+import { Radio, CheckCircle, Clock, AlertCircle } from 'lucide-react'
 
 interface Distribution {
   id: string
@@ -108,6 +109,8 @@ export default function PublisherPage() {
             change="+12%"
             period="全期間"
             trend="up"
+            icon={Radio}
+            moduleColor="bg-publisher"
           />
           <KPICard
             label="配信済み"
@@ -115,13 +118,17 @@ export default function PublisherPage() {
             change="+8%"
             period="本月"
             trend="up"
+            icon={CheckCircle}
+            moduleColor="bg-green-600"
           />
           <KPICard
             label="予定"
             value={statsLoading ? '...' : (stats?.scheduledCount || 0).toString()}
             change={stats?.scheduledCount ? `${stats.scheduledCount}件` : '0件'}
             period="待機中"
-            trend="neutral"
+            trend={stats?.scheduledCount ? 'up' : 'down'}
+            icon={Clock}
+            moduleColor="bg-blue-600"
           />
           <KPICard
             label="失敗"
@@ -129,6 +136,8 @@ export default function PublisherPage() {
             change={stats?.failedCount === 0 ? '正常' : '要確認'}
             period="エラー"
             trend={stats?.failedCount === 0 ? 'up' : 'down'}
+            icon={AlertCircle}
+            moduleColor="bg-red-600"
           />
         </div>
 
