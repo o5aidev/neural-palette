@@ -183,3 +183,4 @@ playwright-report/
 
 # Duplicate/backup files
 * 2.*
+node_modules.old
