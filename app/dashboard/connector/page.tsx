@@ -11,7 +11,7 @@ export default function ConnectorPage() {
     { platform: 'Facebook', handle: 'Neural Artist', followers: '23.5K', status: '未接続', engagement: '-' },
   ]
 
-  const totalFollowers = connectedAccounts
+  const _totalFollowers = connectedAccounts
     .filter(a => a.status === '接続済み')
     .reduce((sum, a) => sum + parseFloat(a.followers.replace('K', '')) * 1000, 0)
 

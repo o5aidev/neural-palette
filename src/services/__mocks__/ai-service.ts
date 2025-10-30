@@ -5,7 +5,7 @@
 import { AICompletionRequest, AICompletionResponse } from '../ai-service'
 
 export class MockAIService {
-  async complete(request: AICompletionRequest): Promise<AICompletionResponse> {
+  async complete(_request: AICompletionRequest): Promise<AICompletionResponse> {
     // Return mock response for testing
     return {
       content: JSON.stringify({
@@ -38,11 +38,11 @@ export class MockAIServiceManager {
 
   async complete(
     request: AICompletionRequest,
-    preferredProvider?: 'openai' | 'anthropic'
+    _preferredProvider?: 'openai' | 'anthropic'
   ): Promise<AICompletionResponse> {
     // Extract sentiment analysis request
     const systemMessage = request.messages.find(m => m.role === 'system')?.content || ''
-    const userMessage = request.messages.find(m => m.role === 'user')?.content || ''
+    const _userMessage = request.messages.find(m => m.role === 'user')?.content || ''
 
     // If this is a sentiment analysis request, return appropriate response
     if (systemMessage.includes('sentiment analysis')) {

@@ -48,7 +48,7 @@ export default function PublisherPage() {
   const distributions = distributionsData?.data || []
   const stats = statsData?.data
 
-  const getStatusColor = (status: string) => {
+  const _getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
       draft: 'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400',
       scheduled: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',

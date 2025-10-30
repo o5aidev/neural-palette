@@ -99,7 +99,7 @@ export default function EchoPage() {
   const messages = messagesData?.data || []
   const stats = statsData?.data
 
-  const getSentimentColor = (sentiment: string) => {
+  const _getSentimentColor = (sentiment: string) => {
     const colors: Record<string, string> = {
       excited: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400',
       positive: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
