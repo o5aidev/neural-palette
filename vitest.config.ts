@@ -10,10 +10,15 @@ export default defineConfig({
         singleFork: true,
       },
     },
+    fileParallelism: false, // Run test files sequentially
+    sequence: {
+      shuffle: false, // Deterministic test order
+    },
     testTimeout: 30000, // 30 seconds for individual tests
     hookTimeout: 30000, // 30 seconds for beforeEach/afterEach hooks
     exclude: [
       '**/node_modules/**',
+      '**/node_modules.old/**', // Exclude old node_modules
       '**/dist/**',
       '**/e2e/**', // Exclude E2E tests (run with Playwright)
     ],
